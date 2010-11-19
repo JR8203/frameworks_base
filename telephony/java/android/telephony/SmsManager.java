@@ -590,38 +590,6 @@ public final class SmsManager {
     }
 
     /**
-     * Enable reception of cell broadcast (SMS-CB) messages with the given
-     * message identifier and subscription. Note that if two different clients enable the same
-     * message identifier, they must both disable it for the device to stop
-     * receiving those messages. All received messages will be broadcast in an
-     * intent with the action "android.provider.telephony.SMS_CB_RECEIVED".
-     * Note: This call is blocking, callers may want to avoid calling it from
-     * the main thread of an application.
-     *
-     * @param messageIdentifier Message identifier as specified in TS 23.041
-     * @param subscription for which the broadcast has to be enabled 
-     * @return true if successful, false otherwise
-     * @see #disableCellBroadcast(int)
-     *
-     * {@hide}
-     */
-
-    public boolean enableCellBroadcastOnSubscription(int messageIdentifier, int subscription) {
-        boolean success = false;
-
-        try {
-            ISms iccISms = ISms.Stub.asInterface(ServiceManager.getService("isms"));
-            if (iccISms != null) {
-                success = iccISms.enableCellBroadcastOnSubscription(messageIdentifier, subscription);
-            }
-        } catch (RemoteException ex) {
-            // ignore it
-        }
-
-        return success;
-    }
-
-    /**
      * Disable reception of cell broadcast (SMS-CB) messages with the given
      * message identifier. Note that if two different clients enable the same
      * message identifier, they must both disable it for the device to stop

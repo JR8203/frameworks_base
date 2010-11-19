@@ -340,4 +340,9 @@ final class ImsSMSDispatcher extends SMSDispatcher {
         return null;
     }
 
+    protected void handleBroadcastSms(AsyncResult ar) {
+        // Not supported
+        Log.e(TAG, "Error! Not implemented for IMS.");
+    }
+
 }

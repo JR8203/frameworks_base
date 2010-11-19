@@ -23,9 +23,15 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Intent;
 import android.os.AsyncResult;
 import android.os.Message;
+<<<<<<< HEAD
 import android.provider.Telephony.Sms;
+=======
+import android.os.SystemProperties;
+>>>>>>> c276fb1... Enabling cell broadcast (SMS-CB) support in the platform.
 import android.provider.Telephony.Sms.Intents;
 import android.telephony.ServiceState;
+import android.telephony.SmsCbMessage;
+import android.telephony.gsm.GsmCellLocation;
 import android.util.Config;
 import android.util.Log;
 
@@ -33,10 +39,13 @@ import com.android.internal.telephony.CommandsInterface.RadioTechnologyFamily;
 import com.android.internal.telephony.SmsMessageBase.TextEncodingDetails;
 import com.android.internal.telephony.ProxyManager.Subscription;
 import com.android.internal.telephony.UiccManager.AppFamily;
+import com.android.internal.telephony.gsm.SmsCbHeader;
 import com.android.internal.telephony.gsm.SmsMessage;
+import com.android.internal.telephony.BaseCommands;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import static android.telephony.SmsMessage.MessageClass;
 
@@ -49,6 +58,7 @@ final class GsmSMSDispatcher extends SMSDispatcher {
         mCm.setOnNewSMS(this, EVENT_NEW_SMS, null);
         mCm.setOnSmsOnSim(this, EVENT_SMS_ON_ICC, null);
         mCm.setOnSmsStatus(this, EVENT_NEW_SMS_STATUS_REPORT, null);
+        ((BaseCommands)mCm).setOnNewGsmBroadcastSms(this, EVENT_NEW_BROADCAST_SMS, null);
     }
 
     public void updatePhoneObject(Phone phone) {
@@ -630,7 +640,6 @@ final class GsmSMSDispatcher extends SMSDispatcher {
                    obtainMessage(EVENT_GET_ICC_SMS_DONE));
         }
     }
-
 
     /**
      * Called when a SMS on SIM is retrieved.

@@ -145,6 +145,9 @@ public abstract class SMSDispatcher extends Handler {
     //DSDS static cannot be used
     protected Phone mPhone;
 
+    /** New broadcast SMS */
+    static final protected int EVENT_NEW_BROADCAST_SMS = 13;
+
     protected Context mContext;
     protected ContentResolver mResolver;
     protected CommandsInterface mCm;
@@ -436,6 +439,9 @@ public abstract class SMSDispatcher extends Handler {
                 mCm.reportSmsMemoryStatus(mStorageAvailable,
                         obtainMessage(EVENT_REPORT_MEMORY_STATUS_DONE));
             }
+
+        case EVENT_NEW_BROADCAST_SMS:
+            handleBroadcastSms((AsyncResult)msg.obj);
             break;
 
         case EVENT_NEW_BROADCAST_SMS:
@@ -1152,7 +1158,7 @@ public abstract class SMSDispatcher extends Handler {
     protected abstract void handleBroadcastSms(AsyncResult ar);
 
     protected void dispatchBroadcastPdus(byte[][] pdus) {
-        Intent intent = new Intent(Intents.CB_SMS_RECEIVED_ACTION);
+        Intent intent = new Intent("android.provider.telephony.SMS_CB_RECEIVED");.
         intent.putExtra("pdus", pdus);
 
         if (Config.LOGD)
