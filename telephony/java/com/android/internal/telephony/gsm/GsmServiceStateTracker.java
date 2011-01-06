@@ -693,6 +693,43 @@ final class GsmServiceStateTracker extends ServiceStateTracker {
         }
     }
 
+    private static String networkTypeToString(int type) {
+        //Network Type from GPRS_REGISTRATION_STATE
+        String ret = "unknown";
+
+        switch (type) {
+            case DATA_ACCESS_GPRS:
+                ret = "GPRS";
+                break;
+            case DATA_ACCESS_EDGE:
+                ret = "EDGE";
+                break;
+            case DATA_ACCESS_UMTS:
+                ret = "UMTS";
+                break;
+            case DATA_ACCESS_HSDPA:
+                ret = "HSDPA";
+                break;
+            case DATA_ACCESS_HSUPA:
+                ret = "HSUPA";
+                break;
+            case DATA_ACCESS_HSPA:
+                ret = "HSPA";
+                break;
+            case DATA_ACCESS_LTE:
+                ret = "LTE";
+                break;
+            case DATA_ACCESS_EHRPD:
+                ret = "EHRPD";
+                break;
+            default:
+                Log.e(LOG_TAG, "Wrong network type: " + Integer.toString(type));
+                break;
+        }
+
+        return ret;
+    }
+
     private void pollStateDone() {
         if (DBG) {
             Log.d(LOG_TAG, "Poll ServiceState done: " +
