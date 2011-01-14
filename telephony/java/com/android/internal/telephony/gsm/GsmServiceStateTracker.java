@@ -319,7 +319,8 @@ final class GsmServiceStateTracker extends ServiceStateTracker {
                 ar = (AsyncResult) msg.obj;
 
                 if (ar.exception == null) {
-                    String states[] = (String[])ar.result;
+                    RegStateResponse r = (RegStateResponse)ar.result;
+                    String states[] = r.getValues();
                     int lac = -1;
                     int cid = -1;
                     if (states.length >= 3) {
@@ -550,7 +551,7 @@ final class GsmServiceStateTracker extends ServiceStateTracker {
             switch (what) {
                 case EVENT_POLL_STATE_REGISTRATION:
                     RegStateResponse r = (RegStateResponse)ar.result;
-                    states = r.getRecord(0);
+                    states = r.getValues();
 
                     int lac = -1;
                     int cid = -1;
