@@ -1111,10 +1111,7 @@ public class CDMAPhone extends PhoneBase {
      * {@inheritDoc}
      */
     public IccFileHandler getIccFileHandler() {
-        if (m3gpp2Application != null) {
-            return m3gpp2Application.getIccFileHandler();
-        }
-        return null;
+        return this.mIccFileHandler;
     }
 
     /**
