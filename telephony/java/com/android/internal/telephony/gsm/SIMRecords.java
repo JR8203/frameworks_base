@@ -145,12 +145,6 @@ public final class SIMRecords extends UiccApplicationRecords {
     private static final int EVENT_SET_MSISDN_DONE = 30;
     private static final int EVENT_SIM_REFRESH = 31;
     private static final int EVENT_GET_CFIS_DONE = 32;
-    private static final int EVENT_GET_CSP_CPHS_DONE = 33;
-    private static final int EVENT_GET_ALL_OPL_RECORDS_DONE = 34;
-    private static final int EVENT_GET_ALL_PNN_RECORDS_DONE = 35;
-    private static final int EVENT_GET_SPN = 36;
-    private static final int EVENT_GET_SPN_CPHS_DONE = 37;
-    private static final int EVENT_GET_SPN_SHORT_CPHS_DONE = 38;
 
     // Lookup table for carriers known to produce SIMs which incorrectly indicate MNC length.
 
@@ -171,8 +165,6 @@ public final class SIMRecords extends UiccApplicationRecords {
         "405928", "405929", "405932"
     };
 
-    private static final int EVENT_SET_MWIS_DONE = 39;
-    private static final int EVENT_SET_CPHS_MWIS_DONE = 40;
     // ***** Constructor
 
     public SIMRecords(UiccCardApplication parent, UiccRecords ur, Context c, CommandsInterface ci) {
@@ -529,6 +521,17 @@ public final class SIMRecords extends UiccApplicationRecords {
                 if (((mncLength == UNKNOWN) || (mncLength == 2)) &&
                         ((mImsi != null) && (mImsi.length() >= 6))) {
                     String mccmncCode = mImsi.substring(0, 6);
+                    for (String mccmnc : MCCMNC_CODES_HAVING_3DIGITS_MNC) {
+                        if (mccmnc.equals(mccmncCode)) {
+                            mncLength = 3;
+                            break;
+                        }
+                    }
+                }
+
+                if (((mncLength == UNKNOWN) || (mncLength == 2)) &&
+                        ((imsi != null) && (imsi.length() >= 6))) {
+                    String mccmncCode = imsi.substring(0, 6);
                     for (String mccmnc : MCCMNC_CODES_HAVING_3DIGITS_MNC) {
                         if (mccmnc.equals(mccmncCode)) {
                             mncLength = 3;
