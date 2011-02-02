@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006 The Android Open Source Project
+ * Copyright (c) 2010-2011, Code Aurora Forum. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +31,7 @@ import android.util.Log;
 
 import com.android.internal.telephony.CommandsInterface.RadioTechnologyFamily;
 import com.android.internal.telephony.SmsMessageBase.TextEncodingDetails;
+import com.android.internal.telephony.ProxyManager.Subscription;
 import com.android.internal.telephony.UiccManager.AppFamily;
 import com.android.internal.telephony.gsm.SmsMessage;
 
@@ -45,7 +47,12 @@ final class GsmSMSDispatcher extends SMSDispatcher {
         super(phone, cm);
         Log.d(TAG, "Register for EVENT_NEW_SMS");
         mCm.setOnNewSMS(this, EVENT_NEW_SMS, null);
+        mCm.setOnSmsOnSim(this, EVENT_SMS_ON_ICC, null);
         mCm.setOnSmsStatus(this, EVENT_NEW_SMS_STATUS_REPORT, null);
+    }
+
+    public void updatePhoneObject(Phone phone) {
+        super.updatePhoneObject(phone);
     }
 
     public void dispose() {
@@ -404,14 +411,17 @@ final class GsmSMSDispatcher extends SMSDispatcher {
     }
 
     protected void updateIccAvailability() {
-        UiccCardApplication newApplication = mUiccManager
-                .getCurrentApplication(AppFamily.APP_FAM_3GPP);
+        Subscription subData = mPhone.getSubscriptionInfo();
+        UiccCardApplication newApplication = null;
+        if (subData != null) {
+            newApplication = mUiccManager
+                .getApplication(subData.slotId, subData.m3gppIndex);
+        }
 
         if (mApplication != newApplication) {
             if (mApplication != null) {
                 Log.d(TAG, "Removing stale 3gpp Application.");
                 if (mRecords != null) {
-                    mRecords.unregisterForNewSms(this);
                     mRecords = null;
                 }
                 mApplication = null;
@@ -420,7 +430,6 @@ final class GsmSMSDispatcher extends SMSDispatcher {
                 Log.d(TAG, "New 3gpp application found");
                 mApplication = newApplication;
                 mRecords = mApplication.getApplicationRecords();
-                mRecords.registerForNewSms(this, EVENT_NEW_ICC_SMS, null);
             }
         }
     }
@@ -443,6 +452,214 @@ final class GsmSMSDispatcher extends SMSDispatcher {
             mRecords.setVoiceMessageWaiting(1, mwi, onComplete);
         } else {
             Log.d(TAG, "SIM Records not found, MWI not updated");
+        }
+    }
+
+    /**
+     * Holds all info about a message page needed to assemble a complete
+     * concatenated message
+     */
+    private static final class SmsCbConcatInfo {
+        private final SmsCbHeader mHeader;
+
+        private final String mPlmn;
+
+        private final int mLac;
+
+        private final int mCid;
+
+        public SmsCbConcatInfo(SmsCbHeader header, String plmn, int lac, int cid) {
+            mHeader = header;
+            mPlmn = plmn;
+            mLac = lac;
+            mCid = cid;
+        }
+
+        @Override
+        public int hashCode() {
+            return mHeader.messageIdentifier * 31 + mHeader.updateNumber;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof SmsCbConcatInfo) {
+                SmsCbConcatInfo other = (SmsCbConcatInfo)obj;
+
+                // Two pages match if all header attributes (except the page
+                // index) are identical, and both pages belong to the same
+                // location (which is also determined by the scope parameter)
+                if (mHeader.geographicalScope == other.mHeader.geographicalScope
+                        && mHeader.messageCode == other.mHeader.messageCode
+                        && mHeader.updateNumber == other.mHeader.updateNumber
+                        && mHeader.messageIdentifier == other.mHeader.messageIdentifier
+                        && mHeader.dataCodingScheme == other.mHeader.dataCodingScheme
+                        && mHeader.nrOfPages == other.mHeader.nrOfPages) {
+                    return matchesLocation(other.mPlmn, other.mLac, other.mCid);
+                }
+            }
+
+            return false;
+        }
+
+        /**
+         * Checks if this concatenation info matches the given location. The
+         * granularity of the match depends on the geographical scope.
+         *
+         * @param plmn PLMN
+         * @param lac Location area code
+         * @param cid Cell ID
+         * @return true if matching, false otherwise
+         */
+        public boolean matchesLocation(String plmn, int lac, int cid) {
+            switch (mHeader.geographicalScope) {
+                case SmsCbMessage.GEOGRAPHICAL_SCOPE_CELL_WIDE:
+                case SmsCbMessage.GEOGRAPHICAL_SCOPE_CELL_WIDE_IMMEDIATE:
+                    if (mCid != cid) {
+                        return false;
+                    }
+                    // deliberate fall-through
+                case SmsCbMessage.GEOGRAPHICAL_SCOPE_LA_WIDE:
+                    if (mLac != lac) {
+                        return false;
+                    }
+                    // deliberate fall-through
+                case SmsCbMessage.GEOGRAPHICAL_SCOPE_PLMN_WIDE:
+                    return mPlmn != null && mPlmn.equals(plmn);
+            }
+
+            return false;
+        }
+    }
+
+    // This map holds incomplete concatenated messages waiting for assembly
+    private HashMap<SmsCbConcatInfo, byte[][]> mSmsCbPageMap =
+            new HashMap<SmsCbConcatInfo, byte[][]>();
+
+    protected void handleBroadcastSms(AsyncResult ar) {
+        try {
+            byte[][] pdus = null;
+            byte[] receivedPdu = (byte[])ar.result;
+
+            if (Config.LOGD) {
+                for (int i = 0; i < receivedPdu.length; i += 8) {
+                    StringBuilder sb = new StringBuilder("SMS CB pdu data: ");
+                    for (int j = i; j < i + 8 && j < receivedPdu.length; j++) {
+                        int b = receivedPdu[j] & 0xff;
+                        if (b < 0x10) {
+                            sb.append("0");
+                        }
+                        sb.append(Integer.toHexString(b)).append(" ");
+                    }
+                    Log.d(TAG, sb.toString());
+                }
+            }
+
+            SmsCbHeader header = new SmsCbHeader(receivedPdu);
+            String plmn = SystemProperties.get(TelephonyProperties.PROPERTY_OPERATOR_NUMERIC);
+            GsmCellLocation cellLocation = (GsmCellLocation)mPhone.getCellLocation();
+            int lac = cellLocation.getLac();
+            int cid = cellLocation.getCid();
+
+            if (header.nrOfPages > 1) {
+                // Multi-page message
+                SmsCbConcatInfo concatInfo = new SmsCbConcatInfo(header, plmn, lac, cid);
+
+                // Try to find other pages of the same message
+                pdus = mSmsCbPageMap.get(concatInfo);
+
+                if (pdus == null) {
+                    // This it the first page of this message, make room for all
+                    // pages and keep until complete
+                    pdus = new byte[header.nrOfPages][];
+
+                    mSmsCbPageMap.put(concatInfo, pdus);
+                }
+
+                // Page parameter is one-based
+                pdus[header.pageIndex - 1] = receivedPdu;
+
+                for (int i = 0; i < pdus.length; i++) {
+                    if (pdus[i] == null) {
+                        // Still missing pages, exit
+                        return;
+                    }
+                }
+
+                // Message complete, remove and dispatch
+                mSmsCbPageMap.remove(concatInfo);
+            } else {
+                // Single page message
+                pdus = new byte[1][];
+                pdus[0] = receivedPdu;
+            }
+
+            dispatchBroadcastPdus(pdus);
+
+            // Remove messages that are out of scope to prevent the map from
+            // growing indefinitely, containing incomplete messages that were
+            // never assembled
+            Iterator<SmsCbConcatInfo> iter = mSmsCbPageMap.keySet().iterator();
+
+            while (iter.hasNext()) {
+                SmsCbConcatInfo info = iter.next();
+
+                if (!info.matchesLocation(plmn, lac, cid)) {
+                    iter.remove();
+                }
+            }
+        } catch (RuntimeException e) {
+            Log.e(TAG, "Error in decoding SMS CB pdu", e);
+        }
+    }
+
+    /*
+     * Called when a Class2 SMS is  received.
+     *
+     * @param ar AsyncResult passed to this function. "ar.result" should
+     *           be representing the INDEX of SMS on SIM.
+     */
+    protected void handleSmsOnIcc(AsyncResult ar) {
+        int[] index = (int[])ar.result;
+
+        if (ar.exception != null || index.length != 1) {
+            Log.e(TAG, " Error on SMS_ON_SIM with exp "
+                   + ar.exception + " length " + index.length);
+        } else {
+            Log.d(TAG, "READ EF_SMS RECORD index=" + index[0]);
+            mApplication.getIccFileHandler().loadEFLinearFixed(IccConstants.EF_SMS,index[0],
+                   obtainMessage(EVENT_GET_ICC_SMS_DONE));
+        }
+    }
+
+
+    /**
+     * Called when a SMS on SIM is retrieved.
+     *
+     * @param ar AsyncResult passed to this function.
+     */
+    protected void handleGetIccSmsDone(AsyncResult ar) {
+        byte[] ba;
+
+        if (ar.exception == null) {
+            ba = (byte[])ar.result;
+            if (ba[0] != 0)
+                Log.d(TAG, "status : " + ba[0]);
+
+            // 3GPP TS 51.011 v5.0.0 (20011-12)  10.5.3
+            // 3 == "received by MS from network; message to be read"
+            if (ba[0] == 3) {
+                int n = ba.length;
+
+                // Note: Data may include trailing FF's.  That's OK; message
+                // should still parse correctly.
+                byte[] pdu = new byte[n - 1];
+                System.arraycopy(ba, 1, pdu, 0, n - 1);
+                SmsMessage message = SmsMessage.createFromPdu(pdu);
+                dispatchMessage((SmsMessageBase) message);
+            } else {
+                Log.e(TAG, "Error on GET_SMS with exp "
+                    + ar.exception);
+            }
         }
     }
 }

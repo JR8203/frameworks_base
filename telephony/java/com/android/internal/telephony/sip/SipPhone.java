@@ -37,6 +37,7 @@ import com.android.internal.telephony.CallStateException;
 import com.android.internal.telephony.Connection;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneNotifier;
+import com.android.internal.telephony.ProxyManager.Subscription;
 import com.android.internal.telephony.UUSInfo;
 
 import java.text.ParseException;
@@ -604,6 +605,17 @@ public class SipPhone extends SipPhoneBase {
             if (connections.isEmpty()) return null;
             return ((SipConnection) connections.get(0)).getAudioGroup();
         }
+
+        public int getSubscription() {
+            return 0;
+        }
+
+        public void setSubscriptionInfo(Subscription subscription) {
+        }
+
+        public Subscription getSubscriptionInfo() {
+            return null;
+        }
     }
 
     private class SipConnection extends SipConnectionBase {
@@ -939,5 +951,19 @@ public class SipPhone extends SipPhoneBase {
                     onError(Connection.DisconnectCause.ERROR_UNSPECIFIED);
             }
         }
+    }
+
+    public void setSubscription(int subscripton) {
+    }
+
+    public int getSubscription() {
+        return 0;
+    }
+
+    public void setSubscriptionInfo(Subscription subscription) {
+    }
+
+    public Subscription getSubscriptionInfo() {
+        return null;
     }
 }
