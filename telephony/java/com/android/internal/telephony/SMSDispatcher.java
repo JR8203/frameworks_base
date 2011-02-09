@@ -438,6 +438,10 @@ public abstract class SMSDispatcher extends Handler {
             }
             break;
 
+        case EVENT_NEW_BROADCAST_SMS:
+            handleBroadcastSms((AsyncResult)msg.obj);
+            break;
+
         case EVENT_ICC_CHANGED:
             updateIccAvailability();
             break;
