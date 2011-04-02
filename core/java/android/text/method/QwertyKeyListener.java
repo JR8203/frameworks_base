@@ -106,6 +106,12 @@ public class QwertyKeyListener extends BaseKeyListener {
             return true;
         }
 
+        if (i == KeyCharacterMap.DOT_WWW_INPUT || i == KeyCharacterMap.DOT_COM_INPUT) {
+            content.replace(selStart, selEnd, selStart == 0 ? "www." : ".com");
+            adjustMetaAfterKeypress(content);
+            return true;
+        }
+
         if (i == KeyCharacterMap.HEX_INPUT) {
             int start;
 
@@ -432,7 +438,7 @@ public class QwertyKeyListener extends BaseKeyListener {
         PICKER_SETS.put('y', "\u00FD\u00FF");
         PICKER_SETS.put('z', "\u017A\u017C\u017E");
         PICKER_SETS.put(KeyCharacterMap.PICKER_DIALOG_INPUT,
-                             "\u2026\u00A5\u2022\u00AE\u00A9\u00B1[]{}\\|");
+                             "\u2026\u00A5\u2022\u00AE\u00A9\u00B1[]{}<>`^\\|");
         PICKER_SETS.put('/', "\\");
 
         // From packages/inputmethods/LatinIME/res/xml/kbd_symbols.xml

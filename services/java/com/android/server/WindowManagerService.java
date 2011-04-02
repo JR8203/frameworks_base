@@ -522,9 +522,8 @@ public class WindowManagerService extends IWindowManager.Stub
                 } catch (InterruptedException e) {
                 }
             }
+            return thr.mService;
         }
-
-        return thr.mService;
     }
 
     static class WMThread extends Thread {
@@ -1482,6 +1481,7 @@ public class WindowManagerService extends IWindowManager.Stub
                 WindowState wb = localmWindows.get(foundI-1);
                 if (wb.mBaseLayer < maxLayer &&
                         wb.mAttachedWindow != foundW &&
+                        wb.mAttachedWindow != foundW.mAttachedWindow &&
                         (wb.mAttrs.type != TYPE_APPLICATION_STARTING ||
                                 wb.mToken != foundW.mToken)) {
                     // This window is not related to the previous one in any
@@ -5421,6 +5421,7 @@ public class WindowManagerService extends IWindowManager.Stub
         int deviceId = ev.getDeviceId();
         int scancode = ev.getScanCode();
         int source = ev.getSource();
+        int flags = ev.getFlags();
         
         if (source == InputDevice.SOURCE_UNKNOWN) {
             source = InputDevice.SOURCE_KEYBOARD;
@@ -5430,7 +5431,7 @@ public class WindowManagerService extends IWindowManager.Stub
         if (downTime == 0) downTime = eventTime;
 
         KeyEvent newEvent = new KeyEvent(downTime, eventTime, action, code, repeatCount, metaState,
-                deviceId, scancode, KeyEvent.FLAG_FROM_SYSTEM, source);
+                deviceId, scancode, flags | KeyEvent.FLAG_FROM_SYSTEM, source);
 
         final int pid = Binder.getCallingPid();
         final int uid = Binder.getCallingUid();
@@ -7601,7 +7602,8 @@ public class WindowManagerService extends IWindowManager.Stub
                 WindowState win = allAppWindows.get(i);
                 if (win == startingWindow || win.mAppFreezing
                         || win.mViewVisibility != View.VISIBLE
-                        || win.mAttrs.type == TYPE_APPLICATION_STARTING) {
+                        || win.mAttrs.type == TYPE_APPLICATION_STARTING
+                        || win.mDestroying) {
                     continue;
                 }
                 if (DEBUG_VISIBILITY) {

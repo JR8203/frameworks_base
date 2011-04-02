@@ -1458,6 +1458,8 @@ public abstract class Context {
      */
     public static final String WIFI_SERVICE = "wifi";
 
+    public static final String WIMAX_SERVICE = "wimax";
+    
     /**
      * Use with {@link #getSystemService} to retrieve a
      * {@link android.media.AudioManager} for handling management of volume,

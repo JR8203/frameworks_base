@@ -44,6 +44,7 @@ class UsbObserver extends UEventObserver {
     private static final String USB_FUNCTIONS_MATCH = "DEVPATH=/devices/virtual/usb_composite/";
     private static final String USB_CONFIGURATION_PATH = "/sys/class/switch/usb_configuration/state";
     private static final String USB_COMPOSITE_CLASS_PATH = "/sys/class/usb_composite";
+    private static final String USB_CONFIGURATION_MATCH_LEGACY = "DEVPATH=/devices/virtual/switch/usb_mass_storage";
 
     private static final int MSG_UPDATE = 0;
 
@@ -66,6 +67,7 @@ class UsbObserver extends UEventObserver {
 
         startObserving(USB_CONFIGURATION_MATCH);
         startObserving(USB_FUNCTIONS_MATCH);
+        startObserving(USB_CONFIGURATION_MATCH_LEGACY);
     }
 
     @Override
@@ -89,6 +91,20 @@ class UsbObserver extends UEventObserver {
                     }
                 } catch (NumberFormatException e) {
                     Slog.e(TAG, "Could not parse switch state from event " + event);
+                    int newConfig = 0;
+                    if (switchState.equals("offline")) {
+                        newConfig = 0;
+                    } else if (switchState.equals("online")) {
+                        newConfig = 1;
+                    }
+                    if (newConfig != mUsbConfig) {
+                        mPreviousUsbConfig = mUsbConfig;
+                        mUsbConfig = newConfig;
+                        // trigger an Intent broadcast
+                        if (mSystemReady) {
+                            update();
+                        }
+                    }
                 }
             } else {
                 String function = event.get("FUNCTION");
@@ -128,17 +144,21 @@ class UsbObserver extends UEventObserver {
 
         try {
             File[] files = new File(USB_COMPOSITE_CLASS_PATH).listFiles();
-            for (int i = 0; i < files.length; i++) {
-                File file = new File(files[i], "enable");
-                FileReader reader = new FileReader(file);
-                int len = reader.read(buffer, 0, 1024);
-                int value = Integer.valueOf((new String(buffer, 0, len)).trim());
-                String functionName = files[i].getName();
-                if (value == 1) {
-                    mEnabledFunctions.add(functionName);
-                } else {
-                    mDisabledFunctions.add(functionName);
+            if (files != null) {
+                for (int i = 0; i < files.length; i++) {
+                    File file = new File(files[i], "enable");
+                    FileReader reader = new FileReader(file);
+                    int len = reader.read(buffer, 0, 1024);
+                    int value = Integer.valueOf((new String(buffer, 0, len)).trim());
+                    String functionName = files[i].getName();
+                    if (value == 1) {
+                        mEnabledFunctions.add(functionName);
+                    } else {
+                        mDisabledFunctions.add(functionName);
+                    }
                 }
+            } else {
+                Slog.w(TAG, "This kernel has not enabled USB composite class support");
             }
         } catch (FileNotFoundException e) {
             Slog.w(TAG, "This kernel does not have USB composite class support");

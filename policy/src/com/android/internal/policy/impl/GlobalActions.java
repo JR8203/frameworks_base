@@ -18,6 +18,7 @@ package com.android.internal.policy.impl;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -74,7 +75,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
     private boolean mDeviceProvisioned = false;
     private ToggleAction.State mAirplaneState = ToggleAction.State.Off;
     private boolean mIsWaitingForEcmExit = false;
-
     /**
      * @param context everything needs a context :(
      */
@@ -193,14 +193,8 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         };
 
         mItems = Lists.newArrayList(
-                // silent mode
-                mSilentModeToggle,
-                // next: airplane mode
-                mAirplaneModeOn,
-                // last: power off
-                new SinglePressAction(
-                        com.android.internal.R.drawable.ic_lock_power_off,
-                        R.string.global_action_power_off) {
+
+                new SinglePressAction(com.android.internal.R.drawable.ic_lock_power_off, R.string.global_action_power_off) {
 
                     public void onPress() {
                         // shutdown by making sure radio and power are handled accordingly.
@@ -214,14 +208,36 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                     public boolean showBeforeProvisioning() {
                         return true;
                     }
-                });
+                },
+                new SinglePressAction(com.android.internal.R.drawable.ic_lock_reboot, R.string.global_actions_reboptions) {
+
+					public void onPress() {
+                        ShutdownThread.reboot(mContext,null, true);
+                    }
+
+                    public boolean showDuringKeyguard() {
+                        return true;
+                    }
+
+                    public boolean showBeforeProvisioning() {
+                        return true;
+                    }
+                    
+                },
+                // silent mode
+                mSilentModeToggle,
+                // next: airplane mode
+                mAirplaneModeOn
+                // last: power off
+        );
 
         mAdapter = new MyAdapter();
 
         final AlertDialog.Builder ab = new AlertDialog.Builder(mContext);
 
         ab.setAdapter(mAdapter, this)
-                .setInverseBackgroundForced(true);
+                .setInverseBackgroundForced(true)
+                .setTitle(R.string.global_actions);
 
         final AlertDialog dialog = ab.create();
         dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
@@ -248,7 +264,6 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
         } else {
             mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_DIALOG);
         }
-        mDialog.setTitle(R.string.global_actions);
     }
 
 

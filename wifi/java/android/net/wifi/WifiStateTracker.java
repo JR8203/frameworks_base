@@ -1477,7 +1477,7 @@ public class WifiStateTracker extends NetworkStateTracker {
 
             String[] lines = reply.split("\n");
             for (String line : lines) {
-                String[] prop = line.split(" *= *");
+                String[] prop = line.split(" *= *", 2);
                 if (prop.length < 2)
                     continue;
                 String name = prop[0];
@@ -1672,6 +1672,24 @@ public class WifiStateTracker extends NetworkStateTracker {
      */
     public synchronized boolean unloadDriver() {
         return WifiNative.unloadDriver();
+    }
+
+    /**
+     * Load the Hotspot driver and firmware
+     *
+     * @return {@code true} if the operation succeeds, {@code false} otherwise
+     */
+    public synchronized boolean loadHotspotDriver() {
+        return WifiNative.loadHotspotDriver();
+    }
+
+    /**
+     * Unload the Hotspot driver and firmware
+     *
+     * @return {@code true} if the operation succeeds, {@code false} otherwise
+     */
+    public synchronized boolean unloadHotspotDriver() {
+        return WifiNative.unloadHotspotDriver();
     }
 
     /**

@@ -89,6 +89,10 @@ extern int register_android_message_digest_sha1(JNIEnv *env);
 
 extern int register_android_util_FloatMath(JNIEnv* env);
 
+#ifdef HAVE_FM_RADIO
+extern int register_android_hardware_fm_fmradio(JNIEnv* env);
+#endif
+
 namespace android {
 
 /*
@@ -145,6 +149,9 @@ extern int register_android_net_LocalSocketImpl(JNIEnv* env);
 extern int register_android_net_NetworkUtils(JNIEnv* env);
 extern int register_android_net_TrafficStats(JNIEnv* env);
 extern int register_android_net_wifi_WifiManager(JNIEnv* env);
+#ifdef BOARD_HAVE_SQN_WIMAX
+extern int register_com_htc_net_wimax_WimaxController(JNIEnv* env);
+#endif
 extern int register_android_security_Md5MessageDigest(JNIEnv *env);
 extern int register_android_text_AndroidCharacter(JNIEnv *env);
 extern int register_android_text_AndroidBidi(JNIEnv *env);
@@ -602,7 +609,10 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv)
         }
     }
 
-    property_get("dalvik.vm.execution-mode", propBuf, "");
+    property_get("persist.sys.jit-mode", propBuf, "");
+    if (strcmp(propBuf, "") == 0) {
+        property_get("dalvik.vm.execution-mode", propBuf, "");
+    }
     if (strcmp(propBuf, "int:portable") == 0) {
         executionMode = kEMIntPortable;
     } else if (strcmp(propBuf, "int:fast") == 0) {
@@ -650,8 +660,12 @@ int AndroidRuntime::startVm(JavaVM** pJavaVM, JNIEnv** pEnv)
     //options[curOpt++].optionString = "-verbose:class";
 
     strcpy(heapsizeOptsBuf, "-Xmx");
-    property_get("dalvik.vm.heapsize", heapsizeOptsBuf+4, "16m");
-    //LOGI("Heap size: %s", heapsizeOptsBuf);
+    property_get("persist.sys.vm.heapsize", propBuf, "");
+    if (strcmp(propBuf, "") == 0) {
+        property_get("dalvik.vm.heapsize", propBuf, "16m");
+    }
+    strcpy(heapsizeOptsBuf+4, propBuf);
+    LOGI("Heap size: %s", heapsizeOptsBuf);
     opt.optionString = heapsizeOptsBuf;
     mOptions.add(opt);
 
@@ -1255,11 +1269,17 @@ static const RegJNIRec gRegJNI[] = {
     REG_JNI(register_android_net_NetworkUtils),
     REG_JNI(register_android_net_TrafficStats),
     REG_JNI(register_android_net_wifi_WifiManager),
+#ifdef BOARD_HAVE_SQN_WIMAX
+    REG_JNI(register_com_htc_net_wimax_WimaxController),
+#endif
     REG_JNI(register_android_nfc_NdefMessage),
     REG_JNI(register_android_nfc_NdefRecord),
     REG_JNI(register_android_os_MemoryFile),
     REG_JNI(register_com_android_internal_os_ZygoteInit),
     REG_JNI(register_android_hardware_Camera),
+#ifdef HAVE_FM_RADIO
+    REG_JNI(register_android_hardware_fm_fmradio),
+#endif
     REG_JNI(register_android_hardware_SensorManager),
     REG_JNI(register_android_media_AudioRecord),
     REG_JNI(register_android_media_AudioSystem),

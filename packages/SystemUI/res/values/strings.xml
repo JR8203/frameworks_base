@@ -23,6 +23,10 @@
     <!-- The text for the button in the notification window-shade that clears
          all of the currently visible notifications. -->
     <string name="status_bar_clear_all_button">Clear</string>
+   
+    <!-- The text for the button int the notifiction window that 
+         toggles the power controls. -->
+    <string name="status_bar_widget_status_button">Widgets</string>
 
     <!-- The label in the bar at the top of the status bar when there are no notifications
          showing. -->

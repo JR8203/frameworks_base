@@ -18,6 +18,27 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+
+    <string name="openvpn_vpn_description">OpenVPN SSL VPN</string>
+
+    <!-- Reboot Progress Dialog. This is shown if the user chooses to reboot the phone. -->
+    <string name="reboot_progress">Rebooting\u2026</string>
+
+    <!-- Button to reboot the phone, within the Phone Options dialog -->
+    <string name="reboot_system">Reboot phone</string>
+
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_accessWimaxState">view WiMax state</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_accessWimaxState">Allows an application to view
+      the information about the state of WiMax.</string>
+
+    <!-- Title of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permlab_changeWimaxState">change WiMax state</string>
+    <!-- Description of an application permission, listed so the user can choose whether they want to allow the application to do this. -->
+    <string name="permdesc_changeWimaxState">Allows an application to connect
+      to and disconnect from WiMax Networks.</string>
+
     <!-- Suffix added to a number to signify size in bytes. -->
     <string name="byteShort">B</string>
     <!-- Suffix added to a number to signify size in kilobytes. -->
@@ -296,6 +317,14 @@
 
     <!-- label for item that turns off power in phone options dialog -->
     <string name="global_action_power_off">Power off</string>
+
+    <!-- label for item that reboots the phone in phone options dialog -->
+    <string name="global_action_reboot">Reboot</string>
+    <string name="global_action_normal">Normal</string>
+    <string name="global_action_recovery">Recovery</string>
+    <string name="global_action_hotreboot">Hot Reboot</string>
+    <string name="global_action_bootloader">Bootloader</string>
+    <string name="global_actions_reboptions">Reboot Options</string>
 
     <!-- label for item that enables silent mode in phone options dialog -->
     <string name="global_action_toggle_silent_mode">Silent mode</string>

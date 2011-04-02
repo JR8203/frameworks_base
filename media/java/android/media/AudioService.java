@@ -162,7 +162,8 @@ public class AudioService extends IAudioService.Stub {
         15, // STREAM_BLUETOOTH_SCO
         7,  // STREAM_SYSTEM_ENFORCED
         15, // STREAM_DTMF
-        15  // STREAM_TTS
+        15,  // STREAM_TTS
+        15 // STREAM_FM
     };
     /* STREAM_VOLUME_ALIAS[] indicates for each stream if it uses the volume settings
      * of another stream: This avoids multiplying the volume settings for hidden
@@ -178,7 +179,8 @@ public class AudioService extends IAudioService.Stub {
         AudioSystem.STREAM_BLUETOOTH_SCO, // STREAM_BLUETOOTH_SCO
         AudioSystem.STREAM_SYSTEM,  // STREAM_SYSTEM_ENFORCED
         AudioSystem.STREAM_VOICE_CALL, // STREAM_DTMF
-        AudioSystem.STREAM_MUSIC  // STREAM_TTS
+        AudioSystem.STREAM_MUSIC,  // STREAM_TTS
+        AudioSystem.STREAM_MUSIC  // STREAM_FM
     };
 
     private AudioSystem.ErrorCallback mAudioSystemCallback = new AudioSystem.ErrorCallback() {
@@ -1134,6 +1136,10 @@ public class AudioService extends IAudioService.Stub {
      * indices on the stream states.
      */
     private boolean checkForRingerModeChange(int oldIndex, int direction) {
+        boolean mVolumeControlSilent = Settings.System.getInt(mContentResolver,
+                Settings.System.VOLUME_CONTROL_SILENT, 0) != 0;
+        boolean vibrateInSilent = System.getInt(mContentResolver,
+                System.VIBRATE_IN_SILENT, 1) == 1;
         boolean adjustVolumeIndex = true;
         int newRingerMode = mRingerMode;
 
@@ -1141,19 +1147,35 @@ public class AudioService extends IAudioService.Stub {
             // audible mode, at the bottom of the scale
             if (direction == AudioManager.ADJUST_LOWER
                     && (oldIndex + 5) / 10 == 1) {
-                // "silent mode", but which one?
-                newRingerMode = System.getInt(mContentResolver, System.VIBRATE_IN_SILENT, 1) == 1
-                    ? AudioManager.RINGER_MODE_VIBRATE
-                    : AudioManager.RINGER_MODE_SILENT;
+                if (vibrateInSilent) {
+                    newRingerMode = AudioManager.RINGER_MODE_VIBRATE;
+                } else {
+                    newRingerMode = AudioManager.RINGER_MODE_SILENT;
+                }
             }
-        } else {
+        } else if (mRingerMode == AudioManager.RINGER_MODE_VIBRATE) {
             if (direction == AudioManager.ADJUST_RAISE) {
-                // exiting silent mode
                 newRingerMode = AudioManager.RINGER_MODE_NORMAL;
+            } else if (direction == AudioManager.ADJUST_LOWER
+                    && mVolumeControlSilent) {
+                newRingerMode = AudioManager.RINGER_MODE_SILENT;
             } else {
                 // prevent last audible index to reach 0
                 adjustVolumeIndex = false;
             }
+        } else if (mRingerMode == AudioManager.RINGER_MODE_SILENT) {
+            if (direction == AudioManager.ADJUST_RAISE) {
+                if (vibrateInSilent) {
+                    newRingerMode = AudioManager.RINGER_MODE_VIBRATE;
+                } else {
+                    newRingerMode = AudioManager.RINGER_MODE_NORMAL;
+                }
+            } else {
+                adjustVolumeIndex = false;
+            }
+        } else {
+            // is this fallback needed?
+            newRingerMode = AudioManager.RINGER_MODE_NORMAL;
         }
 
         if (newRingerMode != mRingerMode) {
@@ -1702,7 +1724,7 @@ public class AudioService extends IAudioService.Stub {
         SettingsObserver() {
             super(new Handler());
             mContentResolver.registerContentObserver(Settings.System.getUriFor(
-                Settings.System.MODE_RINGER_STREAMS_AFFECTED), false, this);
+                    Settings.System.MODE_RINGER_STREAMS_AFFECTED), false, this);
             mContentResolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NOTIFICATIONS_USE_RING_VOLUME), false, this);
         }

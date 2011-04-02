@@ -21,7 +21,9 @@ import com.android.internal.statusbar.IStatusBar;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
+import com.android.systemui.statusbar.powerwidget.PowerWidget;
 import com.android.internal.statusbar.StatusBarNotification;
+import com.android.systemui.R;
 
 import android.app.ActivityManagerNative;
 import android.app.Dialog;
@@ -46,6 +48,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Slog;
 import android.util.Log;
@@ -118,9 +121,14 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
     ScrollView mScrollView;
     View mNotificationLinearLayout;
     View mExpandedContents;
+
+    PowerWidget mPowerWidget;
+
     // top bar
     TextView mNoNotificationsTitle;
     TextView mClearButton;
+    TextView mWidgetStatusButton;
+    private boolean mTogglesVisible = true;
     // drag bar
     CloseDragHandle mCloseView;
     // ongoing
@@ -156,6 +164,8 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
     VelocityTracker mVelocityTracker;
 
     static final int ANIM_FRAME_DURATION = (1000/60);
+
+    private Context mContext;
 
     boolean mAnimating;
     long mCurAnimationTime;
@@ -289,6 +299,8 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         mLatestTitle = (TextView)expanded.findViewById(R.id.latestTitle);
         mLatestItems = (LinearLayout)expanded.findViewById(R.id.latestItems);
         mNoNotificationsTitle = (TextView)expanded.findViewById(R.id.noNotificationsTitle);
+        mWidgetStatusButton = (TextView)expanded.findViewById(R.id.widget_status_button);
+        mWidgetStatusButton.setOnClickListener(mWidgetStatusButtonListener);
         mClearButton = (TextView)expanded.findViewById(R.id.clear_all_button);
         mClearButton.setOnClickListener(mClearButtonListener);
         mScrollView = (ScrollView)expanded.findViewById(R.id.scroll);
@@ -297,6 +309,22 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         mExpandedView.setVisibility(View.GONE);
         mOngoingTitle.setVisibility(View.GONE);
         mLatestTitle.setVisibility(View.GONE);
+
+        mPowerWidget = (PowerWidget)expanded.findViewById(R.id.exp_power_stat);
+        mPowerWidget.setupSettingsObserver(mHandler);
+        mPowerWidget.setGlobalButtonOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        if(Settings.System.getInt(getContentResolver(),
+                                Settings.System.EXPANDED_HIDE_ONCHANGE, 0) == 1) {
+                            animateCollapse();
+                        }
+                    }
+                });
+
+        mTogglesVisible = (Settings.System.getInt(
+                        context.getContentResolver(),
+                        Settings.System.EXPANDED_VIEW_WIDGET, 1) == 1
+                );
 
         mTicker = new MyTicker(context, sb);
 
@@ -339,6 +367,9 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         lp.windowAnimations = com.android.internal.R.style.Animation_StatusBar;
 
         WindowManagerImpl.getDefault().addView(view, lp);
+
+        mPowerWidget.setupWidget();
+
     }
 
     public void addIcon(String slot, int index, int viewIndex, StatusBarIcon icon) {
@@ -496,6 +527,15 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
             return latestSize - viewIndex;
         }
     }
+
+    private void updateWidgetStatus() {
+        if(!mTogglesVisible) {
+            mWidgetStatusButton.setVisibility(View.GONE);
+        } else {
+            mWidgetStatusButton.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     View[] makeNotificationView(StatusBarNotification notification, ViewGroup parent) {
         Notification n = notification.notification;
@@ -683,6 +723,8 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         }
         mExpandedVisible = true;
         visibilityChanged(true);
+
+	mPowerWidget.updateWidget();
 
         updateExpandedViewPos(EXPANDED_LEAVE_ALONE);
         mExpandedParams.flags &= ~WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
@@ -1195,7 +1237,7 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         Drawable bg;
 
         /// ---------- Tracking View --------------
-        pixelFormat = PixelFormat.RGBX_8888;
+        pixelFormat = PixelFormat.TRANSLUCENT;
         bg = mTrackingView.getBackground();
         if (bg != null) {
             pixelFormat = bg.getOpacity();
@@ -1423,6 +1465,17 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
             }
         }
     }
+
+    private View.OnClickListener mWidgetStatusButtonListener = new View.OnClickListener() {
+        public void onClick(View v) {
+        boolean value;
+    
+	value = (mTogglesVisible);
+            Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
+                    value ? 1 : 0);
+            updateWidgetStatus(); 
+	}
+    };
 
     private View.OnClickListener mClearButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
