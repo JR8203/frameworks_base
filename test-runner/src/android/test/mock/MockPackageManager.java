@@ -1,3 +1,5 @@
+
+
 /*
  * Copyright (C) 2008 The Android Open Source Project
  *
@@ -487,6 +489,19 @@ public class MockPackageManager extends PackageManager {
     
     @Override
     public boolean isSafeMode() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @hide - to match hiding in superclass
+     */
+    @Override
+    public List<PackageInfo> getInstalledThemePackages() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setPackageObbPath(String packageName, String path) {
         throw new UnsupportedOperationException();
     }
 }
