@@ -98,14 +98,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
     private java.text.DateFormat mTimeFormat;
     private boolean mEnableMenuKeyInLockScreen;
 
-    private boolean mTrackpadUnlockScreen = (Settings.System.getInt(mContext.getContentResolver(),
-	    Settings.System.TRACKPAD_UNLOCK_SCREEN, 0) == 1);
-
-    private boolean mLockAlwaysBattery = (Settings.System.getInt(mContext.getContentResolver(),
-	    Settings.System.LOCKSCREEN_ALWAYS_BATTERY, 0) == 1);
-
-    private boolean mMenuUnlockScreen = (Settings.System.getInt(mContext.getContentResolver(),
-	    Settings.System.MENU_UNLOCK_SCREEN, 0) == 1);
 
     private boolean mUseRotaryLockScreen = false;
 
@@ -344,9 +336,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_DPAD_CENTER && mTrackpadUnlockScreen)
-		|| (keyCode == KeyEvent.KEYCODE_MENU && mMenuUnlockScreen)
-		|| (keyCode == KeyEvent.KEYCODE_MENU && mEnableMenuKeyInLockScreen)) {
+        if (keyCode == KeyEvent.KEYCODE_MENU && mEnableMenuKeyInLockScreen) {
             mCallback.goToUnlockScreen();
         }
         return false;
@@ -504,17 +494,14 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
     }
 
     private void refreshBatteryStringAndIcon() {
-        if (!mShowingBatteryInfo && !mLockAlwaysBattery) {
+        if (!mShowingBatteryInfo) {
             mCharging = null;
             return;
         }
 
-        if (mPluggedIn) {
-	    mChargingIcon =
-		    getContext().getResources().getDrawable(R.drawable.ic_lock_idle_charging);
-	} else {
+        if (mChargingIcon == null) {
             mChargingIcon =
-                    getContext().getResources().getDrawable(R.drawable.ic_lock_idle_discharging);
+                    getContext().getResources().getDrawable(R.drawable.ic_lock_idle_charging);
         }
 
         if (mPluggedIn) {
@@ -524,11 +511,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
                 mCharging = getContext().getString(R.string.lockscreen_plugged_in, mBatteryLevel);
             }
         } else {
-            if (mBatteryLevel <= 20) {
-		mCharging = getContext().getString(R.string.lockscreen_low_battery, mBatteryLevel);
-	    } else {
-		mCharging = getContext().getString(R.string.lockscreen_discharging, mBatteryLevel);
-	    }
+            mCharging = getContext().getString(R.string.lockscreen_low_battery);
         }
     }
 

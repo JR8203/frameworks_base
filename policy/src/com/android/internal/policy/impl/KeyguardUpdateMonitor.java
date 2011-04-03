@@ -357,11 +357,6 @@ public class KeyguardUpdateMonitor {
                 return true;
             }
         }
-        // change in battery level
-        if (mBatteryLevel != batteryLevel) {
-            return true;
-        }
-
         return false;
     }
 
