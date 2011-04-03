@@ -1820,6 +1820,12 @@ public final class Settings {
 	 */
 	public static final String TRACKPAD_WAKE_SCREEN = "trackpad_wake_screen";
 
+	/** 
+	 * Whether to unlock the phone with the trackpad
+	 * @hide
+	 */
+	public static final String TRACKPAD_UNLOCK_SCREEN = "trackpad_unlock_screen";
+
         /**
          * Whether the audible DTMF tones are played by the dialer when dialing. The value is
          * boolean (1 or 0).
