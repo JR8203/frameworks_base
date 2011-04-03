@@ -196,15 +196,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     // Vibrator pattern for haptic feedback during boot when safe mode is enabled.
     long[] mSafeModeEnabledVibePattern;
 
-    boolean mTrackpadWakeScreen;
-
-    // Whether volume button controls should be enabled or not
-    Long mTrackballHitTime;
-    boolean mEnableVolMusicControls = true;
-    boolean mVolumeUpPressed;
-    boolean mVolumeDownPressed;
-    static final long NEXT_DURATION = 400;
-
     /** If true, hitting shift & menu will broadcast Intent.ACTION_BUG_REPORT */
     boolean mEnableShiftMenuBugReports = false;
     
@@ -330,10 +321,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     Settings.Secure.DEFAULT_INPUT_METHOD), false, this);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     "fancy_rotation_anim"), false, this);
-	    resolver.registerContentObserver(Settings.System.getUriFor(
-		    Settings.System.ENABLE_VOL_MUSIC_CONTROLS), false, this);
-	    resolver.registerContentObserver(Settings.System.getUriFor(
-		    Settings.System.TRACKPAD_WAKE_SCREEN), false, this);
             updateSettings();
         }
 
@@ -625,8 +612,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     Settings.Secure.INCALL_POWER_BUTTON_BEHAVIOR_DEFAULT);
             mFancyRotationAnimation = Settings.System.getInt(resolver,
                     "fancy_rotation_anim", 0) != 0 ? 0x80 : 0;
-	    mTrackpadWakeScreen = (Settings.System.getInt(resolver,
-		    Settings.System.TRACKPAD_WAKE_SCREEN, 0) == 1);
             int accelerometerDefault = Settings.System.getInt(resolver,
                     Settings.System.ACCELEROMETER_ROTATION, DEFAULT_ACCELEROMETER_ROTATION);
             if (mAccelerometerDefault != accelerometerDefault) {
@@ -1752,17 +1737,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         final boolean down = action == KeyEvent.ACTION_DOWN;
         final boolean canceled = (flags & KeyEvent.FLAG_CANCELED) != 0;
 
-	boolean isBtnMouse = (keyCode == BTN_MOUSE);
-	if (isBtnMouse) {
-	    result &= ~ACTION_PASS_TO_USER;
-	}
-
-        final boolean isWakeKey = (policyFlags
-                & (WindowManagerPolicy.FLAG_WAKE | WindowManagerPolicy.FLAG_WAKE_DROPPED)) != 0
-		|| (isBtnMouse && mTrackpadWakeScreen);
-
-        // If the key is injected, pretend that the screen is on and don't let the
-        // device go to sleep.  This feature is mainly used for testing purposes.
         final boolean isInjected = (policyFlags & WindowManagerPolicy.FLAG_INJECTED) != 0;
 
         // If screen is off then we treat the case where the keyguard is open but hidden
@@ -1775,7 +1749,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         if (false) {
             Log.d(TAG, "interceptKeyTq keycode=" + keyCode
-                  + " screenIsOn=" + isScreenOn + " keyguardActive=" + keyguardActive + " isWakeKey=" + isWakeKey);
+                  + " screenIsOn=" + isScreenOn + " keyguardActive=" + keyguardActive);
         }
 
         if (down && (policyFlags & WindowManagerPolicy.FLAG_VIRTUAL) != 0) {
