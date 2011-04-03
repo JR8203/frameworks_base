@@ -1509,7 +1509,7 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         boolean value;
         value = (mAreTogglesVisible);
             Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
-                    value ? 0 : 1);
+                    value ? 1 : 0);
         mPowerWidget.updateVisibility();        
         mTogglesNotVisibleButton.setVisibility(View.GONE);
         mTogglesVisibleButton.setVisibility(View.VISIBLE);
