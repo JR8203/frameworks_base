@@ -1826,6 +1826,12 @@ public final class Settings {
 	 */
 	public static final String TRACKPAD_UNLOCK_SCREEN = "trackpad_unlock_screen";
 
+	/**
+	 * Whether to always show battery status on lockscreen
+ 	 * @hide
+	 */
+	public static final String LOCKSCREEN_ALWAYS_BATTERY = "lockscreen_always_battery";
+
         /**
          * Whether the audible DTMF tones are played by the dialer when dialing. The value is
          * boolean (1 or 0).
