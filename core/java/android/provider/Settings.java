@@ -1808,6 +1808,18 @@ public final class Settings {
          */
         public static final String SCREEN_LOCK_SCREENOFF_DELAY = "screen_lock_screenoff_delay";
 
+	/** 
+	 * Whether to enable the volume button music controls or not
+	 * @hide
+	 */
+	public static final String ENABLE_VOL_MUSIC_CONTROLS = "enable_vol_music_controls";
+
+	/**
+	 * Whether to wake the screen with the trackpad
+	 * @hide
+	 */
+	public static final String TRACKPAD_WAKE_SCREEN = "trackpad_wake_screen";
+
         /**
          * Whether the audible DTMF tones are played by the dialer when dialing. The value is
          * boolean (1 or 0).
