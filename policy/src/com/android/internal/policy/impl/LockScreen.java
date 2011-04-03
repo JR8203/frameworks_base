@@ -98,11 +98,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
     private java.text.DateFormat mTimeFormat;
     private boolean mEnableMenuKeyInLockScreen;
 
-    private boolean mTrackpadUnlockScreen = (Settings.System.getInt(mContext.getContentResolver(),
-	    Settings.System.TRACKPAD_UNLOCK_SCREEN, 0) == 1);
-
-    private boolean mMenuUnlockScreen = (Settings.System.getInt(mContext.getContentResolver(),
-	    Settings.System.MENU_UNLOCK_SCREEN, 0) == 1);
 
     private boolean mUseRotaryLockScreen = false;
 
