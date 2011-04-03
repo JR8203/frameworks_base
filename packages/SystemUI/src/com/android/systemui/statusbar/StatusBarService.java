@@ -141,8 +141,8 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
     // top bar
     TextView mNoNotificationsTitle;
     TextView mClearButton;
-    TextView mTogglesVisibleButton; 
-    TextView mTogglesNotVisibleButton;
+    public static TextView mTogglesVisibleButton; 
+    public static TextView mTogglesNotVisibleButton;
     private boolean mAreTogglesVisible = true;    
     // drag bar
     CloseDragHandle mCloseView;
@@ -1491,22 +1491,14 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         }
     }
 
-    private View.OnClickListener mTogglesVisibleButtonListener = new View.OnClickListener() {
+    public View.OnClickListener mTogglesVisibleButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
         boolean value;
 	value = (mAreTogglesVisible);
             Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
-                    value ? 0 : 1);
-	mPowerWidget.updateVisibility();
-	
-	    if (mAreTogglesVisible) {
-        	mTogglesNotVisibleButton.setVisibility(View.VISIBLE);
-            	mTogglesVisibleButton.setVisibility(View.GONE);
-	    } else {
-        	mTogglesNotVisibleButton.setVisibility(View.GONE);
-        	mTogglesVisibleButton.setVisibility(View.VISIBLE);
-	    }
-        }
+                    value ? 0 : 0);
+	mPowerWidget.updateVisibility();	
+	}
     };
 
     private View.OnClickListener mTogglesNotVisibleButtonListener = new View.OnClickListener() {
@@ -1514,16 +1506,8 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         boolean value;
         value = (mAreTogglesVisible);
             Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
-                    value ? 1 : 0);
+                    value ? 1 : 1);
         mPowerWidget.updateVisibility();        
-
-            if (mAreTogglesVisible) {
-                mTogglesNotVisibleButton.setVisibility(View.VISIBLE);
-                mTogglesVisibleButton.setVisibility(View.GONE);
-            } else {
-                mTogglesNotVisibleButton.setVisibility(View.GONE);
-                mTogglesVisibleButton.setVisibility(View.VISIBLE);
-            }
         }
     };
 

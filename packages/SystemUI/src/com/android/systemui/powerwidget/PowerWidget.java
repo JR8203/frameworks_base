@@ -35,9 +35,8 @@ import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.view.ViewGroup;
-
+import com.android.systemui.statusbar.StatusBarService;
 import com.android.systemui.R;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -190,9 +189,12 @@ public class PowerWidget extends FrameLayout {
                    Settings.System.EXPANDED_VIEW_WIDGET, 1) == 1;
         if(!displayPowerWidget) {
             setVisibility(View.GONE);
+	StatusBarService.mTogglesNotVisibleButton.setVisibility(View.VISIBLE);
+        StatusBarService.mTogglesVisibleButton.setVisibility(View.GONE);
         } else {
             setVisibility(View.VISIBLE);
-        }
+        StatusBarService.mTogglesNotVisibleButton.setVisibility(View.GONE);
+        StatusBarService.mTogglesVisibleButton.setVisibility(View.VISIBLE);        }
     }
 
     // our own broadcast receiver :D
