@@ -1497,11 +1497,16 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
 	value = (mAreTogglesVisible);
             Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
                     value ? 0 : 1);
-	mPowerWidget.updateVisibility();	
-        mTogglesNotVisibleButton.setVisibility(View.VISIBLE);
-        mTogglesVisibleButton.setVisibility(View.GONE);
-
-	}
+	mPowerWidget.updateVisibility();
+	
+	    if (mAreTogglesVisible) {
+        	mTogglesNotVisibleButton.setVisibility(View.VISIBLE);
+            	mTogglesVisibleButton.setVisibility(View.GONE);
+	    } else {
+        	mTogglesNotVisibleButton.setVisibility(View.GONE);
+        	mTogglesVisibleButton.setVisibility(View.VISIBLE);
+	    }
+        }
     };
 
     private View.OnClickListener mTogglesNotVisibleButtonListener = new View.OnClickListener() {
@@ -1511,8 +1516,14 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
             Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
                     value ? 1 : 0);
         mPowerWidget.updateVisibility();        
-        mTogglesNotVisibleButton.setVisibility(View.GONE);
-        mTogglesVisibleButton.setVisibility(View.VISIBLE);
+
+            if (mAreTogglesVisible) {
+                mTogglesNotVisibleButton.setVisibility(View.VISIBLE);
+                mTogglesVisibleButton.setVisibility(View.GONE);
+            } else {
+                mTogglesNotVisibleButton.setVisibility(View.GONE);
+                mTogglesVisibleButton.setVisibility(View.VISIBLE);
+            }
         }
     };
 
