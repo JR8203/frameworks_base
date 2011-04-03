@@ -141,8 +141,9 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
     // top bar
     TextView mNoNotificationsTitle;
     TextView mClearButton;
-    TextView mWidgetStatusButton;
-    private boolean mTogglesVisible = true;
+    TextView mTogglesVisibleButton; 
+    TextView mTogglesNotVisibleButton;
+    private boolean mAreTogglesVisible = true;    
     // drag bar
     CloseDragHandle mCloseView;
     // ongoing
@@ -327,8 +328,10 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         mLatestTitle = (TextView)expanded.findViewById(R.id.latestTitle);
         mLatestItems = (LinearLayout)expanded.findViewById(R.id.latestItems);
         mNoNotificationsTitle = (TextView)expanded.findViewById(R.id.noNotificationsTitle);
-        mWidgetStatusButton = (TextView)expanded.findViewById(R.id.widget_status_button);
-        mWidgetStatusButton.setOnClickListener(mWidgetStatusButtonListener);
+        mTogglesNotVisibleButton = (TextView)expanded.findViewById(R.id.toggles_not_visible_button);
+        mTogglesNotVisibleButton.setOnClickListener(mTogglesNotVisibleButtonListener);
+        mTogglesVisibleButton = (TextView)expanded.findViewById(R.id.toggles_visible_button);
+        mTogglesVisibleButton.setOnClickListener(mTogglesVisibleButtonListener);
         mClearButton = (TextView)expanded.findViewById(R.id.clear_all_button);
         mClearButton.setOnClickListener(mClearButtonListener);
         mScrollView = (ScrollView)expanded.findViewById(R.id.scroll);
@@ -337,6 +340,9 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         mExpandedView.setVisibility(View.GONE);
         mOngoingTitle.setVisibility(View.GONE);
         mLatestTitle.setVisibility(View.GONE);
+
+	mTogglesNotVisibleButton.setVisibility(View.GONE);
+        mTogglesVisibleButton.setVisibility(View.VISIBLE);
 
         mPowerWidget = (PowerWidget)expanded.findViewById(R.id.exp_power_stat);
         mPowerWidget.setupSettingsObserver(mHandler);
@@ -1503,6 +1509,31 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
                     value ? 1 : 0);
             updateWidgetStatus(); 
 	}
+    };
+
+    private View.OnClickListener mTogglesVisibleButtonListener = new View.OnClickListener() {
+        public void onClick(View v) {
+        boolean value;
+	value = (mAreTogglesVisible);
+            Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
+                    value ? 0 : 1);
+	mPowerWidget.updateVisibility();	
+        mTogglesNotVisibleButton.setVisibility(View.VISIBLE);
+        mTogglesVisibleButton.setVisibility(View.GONE);
+
+	}
+    };
+
+    private View.OnClickListener mTogglesNotVisibleButtonListener = new View.OnClickListener() {
+        public void onClick(View v) {
+        boolean value;
+        value = (mAreTogglesVisible);
+            Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
+                    value ? 0 : 1);
+        mPowerWidget.updateVisibility();        
+        mTogglesNotVisibleButton.setVisibility(View.GONE);
+        mTogglesVisibleButton.setVisibility(View.VISIBLE);
+        }
     };
 
     private View.OnClickListener mClearButtonListener = new View.OnClickListener() {
