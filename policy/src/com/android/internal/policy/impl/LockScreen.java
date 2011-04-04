@@ -99,7 +99,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
     private boolean mEnableMenuKeyInLockScreen;
 
     private boolean mLockAlwaysBattery = (Settings.System.getInt(mContext.getContentResolver(),
-	    Settings.System.LOCKSCREEN_ALWAYS_BATTERY, 0) == 1);
+	    Settings.System.LOCKSCREEN_ALWAYS_BATTERY, 1) == 1);
 
     private boolean mUseRotaryLockScreen = false;
 
