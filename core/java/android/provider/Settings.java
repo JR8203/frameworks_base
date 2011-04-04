@@ -2669,7 +2669,9 @@ public final class Settings {
             Secure.WIFI_WATCHDOG_PING_TIMEOUT_MS;
 
 	/** God Mode Constants **/
-
+        
+	        public static final String LAUNCHER_2_PACKAGE = "com.android.launcher";
+	
 		public static final String CARRIER_CAP = "carrier_caption";
 
 		public static final String USE_SCREENON_ANIM = "use_screenon_anim";
