@@ -2676,7 +2676,7 @@ public final class Settings {
 		
 		public static final String USE_SCREENOFF_ANIM = "use_screenoff_anim";
 		
-		public static final String SCREENSETTINGS = "NUM_SCREENS";
+		public static final String SCREEN_SETTINGS = "NUM_SCREENS";
     }
 
     /**
