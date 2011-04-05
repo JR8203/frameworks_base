@@ -22,6 +22,10 @@ import com.android.internal.widget.LockPatternUtils;
 import com.android.internal.widget.SlidingTab;
 import com.android.internal.widget.RotarySelector;
 
+import com.android.server.BatteryService.getIcon;
+
+import android.media.AudioManager;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -72,7 +76,15 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
     private TextView mStatus2;
     private TextView mScreenLocked;
     private TextView mEmergencyCallText;
+    private TextView mMusicControlsVisibleButton;
+    private TextView mMusicControlsNotVisibleButton;
     private Button mEmergencyCallButton;
+
+    private AudioManager am = (AudioManager)getContext().getSystemService(Context.AUDIO_SERVICE);
+    private boolean mWasMusicActive = am.isMusicActive();
+    private boolean mIsMusicActive = false;
+
+    private boolean mAreMusicControlsVisible = false;
 
     // current configuration state of keyboard and display
     private int mKeyboardHidden;
@@ -109,6 +121,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
 
     private boolean mUseRotaryLockScreen = false;
 
+    BatteryService mBatteryLevel = new BatteryService();
+    
     /**
      * The status of this lock screen.
      */
@@ -230,6 +244,14 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         mStatus2 = (TextView) findViewById(R.id.status2);
 
         mScreenLocked = (TextView) findViewById(R.id.screenLocked);
+
+        mMusicControlsVisibleButton = (TextView) findViewById(R.id.music_controls_visible_button);
+        mMusicControlsVisibleButton.setOnClickListener(mMusicControlsVisibleButtonListener);
+        mMusicControlsNotVisibleButton = (TextView) findViewById(R.id.music_controls_not_visible_button);
+        mMusicControlsNotVisibleButton.setOnClickListener(mMusicControlsNotVisibleButtonListener);
+
+        mMusicControlsNotVisibleButton.setVisibility(View.GONE);
+        mMusicControlsVisibleButton.setVisibility(View.GONE);
 
 
         if (mUseRotaryLockScreen) {
@@ -509,14 +531,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
             mCharging = null;
             return;
         }
-
-        if (mPluggedIn) {
-	    mChargingIcon =
-		    getContext().getResources().getDrawable(R.drawable.ic_lock_idle_charging);
-	} else {
-            mChargingIcon =
-                    getContext().getResources().getDrawable(R.drawable.ic_lock_idle_discharging);
-        }
+	
+	int icon = mBatteryService.getIcon(mBatteryLevel);
 
         if (mPluggedIn) {
             if (mUpdateMonitor.isDeviceCharged()) {
@@ -531,6 +547,34 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
 		mCharging = getContext().getString(R.string.lockscreen_discharging, mBatteryLevel);
 	    }
         }
+    }
+
+
+    private View.OnClickListener mMusicControlsNotVisibleButtonListener = new View.OnClickListener() {
+        public void onClick(View v) {
+		mAreMusicControlsVisible = true;
+                mMusicControlsNotVisibleButton.setVisibility(View.GONE);
+                mMusicControlsVisibleButton.setVisibility(View.VISIBLE);		
+        }
+    };
+
+    private View.OnClickListener mMusicControlsVisibleButtonListener = new View.OnClickListener() {
+        public void onClick(View v) {
+                mAreMusicControlsVisible = false;
+                mMusicControlsNotVisibleButton.setVisibility(View.VISIBLE);
+                mMusicControlsVisibleButton.setVisibility(View.GONE);
+        }
+    };
+
+    private void refreshMusicControlsButton() {
+	    if ((mWasMusicActive || mIsMusicActive)) {
+               mMusicControlsNotVisibleButton.setVisibility(View.VISIBLE);
+               mMusicControlsVisibleButton.setVisibility(View.GONE);
+            } else {
+	       mMusicControlsNotVisibleButton.setVisibility(View.GONE);
+    	       mMusicControlsVisibleButton.setVisibility(View.GONE);
+	       mAreMusicControlsVisible = false;
+            }
     }
 
     /** {@inheritDoc} */

@@ -437,7 +437,7 @@ class BatteryService extends Binder {
         }
     }
 
-    private final int getIcon(int level) {
+    public final int getIcon(int level) {
         if (mBatteryStatus == BatteryManager.BATTERY_STATUS_CHARGING) {
             return com.android.internal.R.drawable.stat_sys_battery_charge;
         } else if (mBatteryStatus == BatteryManager.BATTERY_STATUS_DISCHARGING ||

@@ -18,6 +18,9 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="music_controls_visible_button">Hide Controls</string>
+    <string name="music_controls_not_visible_button">Display Conrols</string>
+
 
     <string name="openvpn_vpn_description">OpenVPN SSL VPN</string>
 
