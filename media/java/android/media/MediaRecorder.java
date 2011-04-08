@@ -154,6 +154,18 @@ public class MediaRecorder
          * is available.
          */
         public static final int VOICE_COMMUNICATION = 7;
+
+        /**
+         * Default FM radio source
+         * @hide
+        */
+        public static final int FM_RX = 8;
+
+        /**
+         * A2DP FM radio source
+         * @hide
+         */
+        public static final int FM_RX_A2DP = 9;
     }
 
     /**
@@ -275,6 +287,9 @@ public class MediaRecorder
     public native void setVideoSource(int video_source)
             throws IllegalStateException;
 
+    public native void setCameraParameters(String params)
+            throws IllegalStateException;
+
     /**
      * Uses the settings from a CamcorderProfile object for recording. This method should
      * be called after the video AND audio sources are set, and before setOutputFile().
@@ -316,7 +331,7 @@ public class MediaRecorder
             degrees != 270) {
             throw new IllegalArgumentException("Unsupported angle: " + degrees);
         }
-        setParameter(String.format("video-param-rotation-angle-degrees=%d", degrees));
+        setParameter("video-param-rotation-angle-degrees=" + degrees);
     }
 
     /**
@@ -435,7 +450,7 @@ public class MediaRecorder
         if (samplingRate <= 0) {
             throw new IllegalArgumentException("Audio sampling rate is not positive");
         }
-        setParameter(String.format("audio-param-sampling-rate=%d", samplingRate));
+        setParameter("audio-param-sampling-rate=" + samplingRate);
     }
 
     /**
@@ -450,7 +465,7 @@ public class MediaRecorder
         if (numChannels <= 0) {
             throw new IllegalArgumentException("Number of channels is not positive");
         }
-        setParameter(String.format("audio-param-number-of-channels=%d", numChannels));
+        setParameter("audio-param-number-of-channels=" + numChannels);
     }
 
     /**
@@ -466,7 +481,7 @@ public class MediaRecorder
         if (bitRate <= 0) {
             throw new IllegalArgumentException("Audio encoding bit rate is not positive");
         }
-        setParameter(String.format("audio-param-encoding-bitrate=%d", bitRate));
+        setParameter("audio-param-encoding-bitrate=" + bitRate);
     }
 
     /**
@@ -482,7 +497,7 @@ public class MediaRecorder
         if (bitRate <= 0) {
             throw new IllegalArgumentException("Video encoding bit rate is not positive");
         }
-        setParameter(String.format("video-param-encoding-bitrate=%d", bitRate));
+        setParameter("video-param-encoding-bitrate=" + bitRate);
     }
 
     /**
