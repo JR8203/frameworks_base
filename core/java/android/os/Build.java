@@ -28,6 +28,8 @@ public class Build {
 
     /** A build ID string meant for displaying to the user */
     public static final String DISPLAY = getString("ro.build.display.id");
+    
+    public static final String ROMVER = getString("ro.build.romversion");
 
     /** The name of the overall product. */
     public static final String PRODUCT = getString("ro.product.name");

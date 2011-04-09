@@ -147,7 +147,8 @@ public final class ActivityThread {
     final HashMap<IBinder, Service> mServices
             = new HashMap<IBinder, Service>();
     AppBindData mBoundApplication;
-    Configuration mConfiguration;
+    Configuration mConfiguration = new Configuration();
+
     Configuration mResConfiguration;
     Application mInitialApplication;
     final ArrayList<Application> mAllApplications
@@ -2571,6 +2572,10 @@ public final class ActivityThread {
                     }
                 }
             }
+            if (r.stopped) {
+                r.activity.performRestart();
+                r.stopped = false;
+            }
             deliverResults(r, res.results);
             if (resumed) {
                 mInstrumentation.callActivityOnResume(r.activity);
@@ -3017,9 +3022,6 @@ public final class ActivityThread {
         
             applyConfigurationToResourcesLocked(config);
             
-            if (mConfiguration == null) {
-                mConfiguration = new Configuration();
-            }
             if (!mConfiguration.isOtherSeqNewer(config)) {
                 return;
             }
