@@ -19,6 +19,19 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
+     <array name="shutdown_reboot_options">
+         <item>Reboot</item>
+         <item>Recovery</item>
+         <item>Bootloader</item>
+     </array>
+ 
+     <string-array name="shutdown_reboot_actions">
+         <item></item>
+         <item>recovery</item>
+         <item>bootloader</item>
+     </string-array>
+
+
     <!-- Do not translate. These are all of the drawable resources that should be preloaded by
          the zygote process before it starts forking application processes. -->
     <array name="preloaded_drawables">
