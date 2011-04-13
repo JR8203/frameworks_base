@@ -21,7 +21,6 @@ import com.android.internal.statusbar.IStatusBar;
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.statusbar.StatusBarIcon;
 import com.android.internal.statusbar.StatusBarIconList;
-import com.android.systemui.statusbar.MusicControls;
 import com.android.systemui.statusbar.powerwidget.PowerWidget;
 import com.android.internal.statusbar.StatusBarNotification;
 import com.android.systemui.R;
@@ -138,7 +137,6 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
     View mExpandedContents;
 
     PowerWidget mPowerWidget;
-    MusicControls mMusicControls;
 
     // top bar
     TextView mNoNotificationsTitle;
@@ -344,8 +342,6 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
 
 	mTogglesNotVisibleButton.setVisibility(View.GONE);
         mTogglesVisibleButton.setVisibility(View.VISIBLE);
-
-        mMusicControls = (MusicControls)expanded.findViewById(R.id.music_controls_window);
 
         mPowerWidget = (PowerWidget)expanded.findViewById(R.id.exp_power_stat);
         mPowerWidget.setupSettingsObserver(mHandler);
