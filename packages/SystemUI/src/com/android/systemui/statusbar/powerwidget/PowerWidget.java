@@ -184,14 +184,19 @@ public class PowerWidget extends FrameLayout {
         BUTTON_LAYOUT_PARAMS.width = mContext.getResources().getDisplayMetrics().widthPixels / LAYOUT_SCROLL_BUTTON_THRESHOLD;
     }
 
-    private void updateVisibility() {
+    public void updateVisibility() {
         // now check if we need to display the widget still
+
+        
         boolean displayPowerWidget = Settings.System.getInt(mContext.getContentResolver(),
-                   Settings.System.EXPANDED_VIEW_WIDGET, 1) == 1;
+                   Settings.System.EXPANDED_VIEW_WIDGET, 0) == 1;
+	Log.i(TAG, "Updating visibility to: " + displayPowerWidget);
         if(!displayPowerWidget) {
             setVisibility(View.GONE);
+	    Log.i(TAG, "Visibility is set to gone" );
         } else {
             setVisibility(View.VISIBLE);
+            Log.i(TAG, "Visibility is set to visible" );
         }
     }
 
@@ -271,3 +276,4 @@ public class PowerWidget extends FrameLayout {
         }
     }
 }
+

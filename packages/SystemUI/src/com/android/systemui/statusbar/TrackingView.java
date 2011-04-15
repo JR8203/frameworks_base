@@ -24,11 +24,14 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 
 
+
+
 public class TrackingView extends LinearLayout {
     final Display mDisplay;
     StatusBarService mService;
     boolean mTracking;
     int mStartX, mStartY;
+    boolean mIsAttachedToWindow;
 
     public TrackingView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -59,11 +62,13 @@ public class TrackingView extends LinearLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mService.onTrackingViewAttached();
+        mIsAttachedToWindow = true;
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mService.onTrackingViewDetached();
+        mIsAttachedToWindow = false;
     }
 }

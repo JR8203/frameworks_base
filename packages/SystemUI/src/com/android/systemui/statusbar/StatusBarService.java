@@ -43,11 +43,8 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-<<<<<<< HEAD
 import android.os.IBinder;
 import android.os.RemoteException;
-=======
->>>>>>> bc8cf55... Rework of Galaxy S-style power widget
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -79,6 +76,8 @@ import android.widget.RemoteViews;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.FrameLayout;
+import  android.widget.ToggleButton;
+
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -142,7 +141,7 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
     View mNotificationLinearLayout;
     View mExpandedContents;
 
-    PowerWidget mPowerWidget;
+    
 
     // top bar
     TextView mNoNotificationsTitle;
@@ -234,6 +233,15 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
             mCurrentTheme = (CustomTheme)currentTheme.clone();
         }
         makeStatusBarView(this);
+
+        // receive broadcasts
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_CONFIGURATION_CHANGED);
+        filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(mBroadcastReceiver, filter);
+
+
 
         // Connect in to the status bar manager service
         StatusBarIconList iconList = new StatusBarIconList();
@@ -329,10 +337,7 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         mLatestTitle = (TextView)expanded.findViewById(R.id.latestTitle);
         mLatestItems = (LinearLayout)expanded.findViewById(R.id.latestItems);
         mNoNotificationsTitle = (TextView)expanded.findViewById(R.id.noNotificationsTitle);
-        mTogglesNotVisibleButton = (TextView)expanded.findViewById(R.id.toggles_not_visible_button);
-        mTogglesNotVisibleButton.setOnClickListener(mTogglesNotVisibleButtonListener);
-        mTogglesVisibleButton = (TextView)expanded.findViewById(R.id.toggles_visible_button);
-        mTogglesVisibleButton.setOnClickListener(mTogglesVisibleButtonListener);
+
         mClearButton = (TextView)expanded.findViewById(R.id.clear_all_button);
         mClearButton.setOnClickListener(mClearButtonListener);
         mScrollView = (ScrollView)expanded.findViewById(R.id.scroll);
@@ -342,7 +347,16 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         mOngoingTitle.setVisibility(View.GONE);
         mLatestTitle.setVisibility(View.GONE);
 
-        mPowerWidget = (PowerWidget)expanded.findViewById(R.id.exp_power_stat);
+
+	// Toggle vissible buttons
+	mTogglesVisibleButton = (ToggleButton)expanded.findViewById(R.id.toggles_visible_button);
+	mTogglesVisibleButton.setOnClickListener(mTogglesVisibleButtonListener);
+	mTogglesVisibleButton.setVisibility(View.VISIBLE);
+
+ 
+
+	// Set up the power widget
+	mPowerWidget = (PowerWidget)expanded.findViewById(R.id.exp_power_stat);
         mPowerWidget.setupSettingsObserver(mHandler);
         mPowerWidget.setGlobalButtonOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
@@ -353,6 +367,9 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
                     }
                 });
 
+
+
+       
         mTicker = new MyTicker(context, sb);
 
         TickerView tickerView = (TickerView)sb.findViewById(R.id.tickerText);
@@ -738,7 +755,7 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
     };
 
     private void makeExpandedVisible() {
-        if (SPEW) Slog.d(TAG, "Make expanded visible: expanded visible=" + mExpandedVisible);
+        if (SPEW) Slog.d(TAG, "Make expanded visible: " + mExpandedVisible);
         if (mExpandedVisible) {
             return;
         }
@@ -1498,25 +1515,30 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         }
     }
 
-    public View.OnClickListener mTogglesVisibleButtonListener = new View.OnClickListener() {
+    private View.OnClickListener mTogglesVisibleButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
-        boolean value;
-	value = (mAreTogglesVisible);
-            Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
-                    value ? 0 : 0);
-	mPowerWidget.updateVisibility();	
+
+	Slog.i(TAG, "Changing the toggle view");
+	
+	String value = (mAreTogglesVisible ? "true" : "False");
+
+	Slog.i(TAG, value);
+	// Change the toggle state
+        Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
+                    mAreTogglesVisible ? 1 : 0);
+
+	// Be sure that the toggles will change
+	mAreTogglesVisible = (mAreTogglesVisible ? false : true);
+	// We need to have the widget veiw updated here
+	// This should be replaced by a proper visiblity update
+        mPowerWidget.updateVisibility();
+
 	}
+	
+	
     };
 
-    private View.OnClickListener mTogglesNotVisibleButtonListener = new View.OnClickListener() {
-        public void onClick(View v) {
-        boolean value;
-        value = (mAreTogglesVisible);
-            Settings.System.putInt(getContentResolver(), Settings.System.EXPANDED_VIEW_WIDGET,
-                    value ? 1 : 1);
-        mPowerWidget.updateVisibility();        
-        }
-    };
+   
 
     private View.OnClickListener mClearButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -1608,72 +1630,20 @@ public class StatusBarService extends Service implements CommandQueue.Callbacks 
         if (newTheme != null &&
                 (mCurrentTheme == null || !mCurrentTheme.equals(newTheme))) {
             mCurrentTheme = (CustomTheme)newTheme.clone();
-            themeChanged = true;
-        }
+            recreateStatusBar(); 
+        } else { 
+            mClearButton.setText(getText(R.string.status_bar_clear_all_button)); 
+            mOngoingTitle.setText(getText(R.string.status_bar_ongoing_events_title)); 
+           mLatestTitle.setText(getText(R.string.status_bar_latest_events_title)); 
+           mNoNotificationsTitle.setText(getText(R.string.status_bar_no_notifications_title)); 
+       }
 
-        mClearButton.setText(getText(R.string.status_bar_clear_all_button));
-        mOngoingTitle.setText(getText(R.string.status_bar_ongoing_events_title));
-        mLatestTitle.setText(getText(R.string.status_bar_latest_events_title));
-        mNoNotificationsTitle.setText(getText(R.string.status_bar_no_notifications_title));
 
-        mEdgeBorder = res.getDimensionPixelSize(R.dimen.status_bar_edge_ignore);
-
-        /*
-         * HACK: Attempt to re-apply views that could have changed from a theme.
-         * This will be replaced with a better solution reinflating the
-         * necessary views.
-         */
-        if (themeChanged) {
-            // XXX: If this changes in the XML, it must also change here.
-            mStatusBarView.setBackgroundDrawable(res.getDrawable(R.drawable.statusbar_background));
-            mDateView.setBackgroundDrawable(res.getDrawable(R.drawable.statusbar_background));
-            ((ImageView)mCloseView.getChildAt(0)).setImageDrawable(res.getDrawable(R.drawable.status_bar_close_on));
-            mExpandedView.findViewById(R.id.exp_view_lin_layout).setBackgroundDrawable(res.getDrawable(R.drawable.title_bar_portrait));
-            mClearButton.setBackgroundDrawable(res.getDrawable(android.R.drawable.btn_default_small));
-
-            // Update icons.
-            ArrayList<ViewGroup> iconViewGroups = new ArrayList<ViewGroup>();
-            iconViewGroups.add(mStatusIcons);
-            iconViewGroups.add(mNotificationIcons);
-
-            for (ViewGroup iconViewGroup: iconViewGroups) {
-                int nIcons = iconViewGroup.getChildCount();
-                for (int i = 0; i < nIcons; i++) {
-                    StatusBarIconView iconView = (StatusBarIconView)iconViewGroup.getChildAt(i);
-                    iconView.updateResources();
-                }
-            }
-
-            // Re-apply notifications.
-            ArrayList<NotificationData> notifGroups = new ArrayList<NotificationData>();
-            notifGroups.add(mOngoing);
-            notifGroups.add(mLatest);
-            ArrayList<ViewGroup> notifViewGroups = new ArrayList<ViewGroup>();
-            notifViewGroups.add(mOngoingItems);
-            notifViewGroups.add(mLatestItems);
-
-            int nNotifGroups = notifGroups.size();
-            for (int i = 0; i < nNotifGroups; i++) {
-                NotificationData notifGroup = notifGroups.get(i);
-                ViewGroup notifViewGroup = notifViewGroups.get(i);
-                int nViews = notifViewGroup.getChildCount();
-                if (nViews != notifGroup.size()) {
-                    throw new IllegalStateException("unexpected mismatch between number of notification views and items");
-                }
-                for (int j = 0; j < nViews; j++) {
-                    ViewGroup container = (ViewGroup)notifViewGroup.getChildAt(j);
-                    NotificationData.Entry entry = notifGroup.getEntryAt(j);
-                    updateNotification(entry.key, entry.notification);
-
-                    // XXX: If this changes in XML, it must also change here.
-                    container.findViewById(R.id.separator).setBackgroundDrawable(res.getDrawable(R.drawable.divider_horizontal_light_opaque));
-                    container.findViewById(R.id.content).setBackgroundDrawable(res.getDrawable(android.R.drawable.status_bar_item_background));
-                }
-            }
+             mEdgeBorder = res.getDimensionPixelSize(R.dimen.status_bar_edge_ignore);
 
             // Recalculate the position of the sliding windows and the titles.
             updateExpandedViewPos(EXPANDED_LEAVE_ALONE);
-        }
+        
 
         if (false) Slog.v(TAG, "updateResources");
     }
