@@ -2430,6 +2430,14 @@
         <attr name="orientation" />
     </declare-styleable>
 
+   <!-- Attribute for the Music Controls widget on the lock screen -->
+
+<declare-styleable name="MusicControls">
+        <!-- Use "horizontal" or "vertical".  The default is horizontal. -->
+        <attr name="orientation" />
+    </declare-styleable>
+
+
     <!-- @hide -->
     <declare-styleable name="WeightedLinearLayout">
         <attr name="majorWeight" format="float" />

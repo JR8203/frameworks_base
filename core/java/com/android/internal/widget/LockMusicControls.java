@@ -4,10 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import com.android.internal.R;
 
 public class LockMusicControls extends View{
 
@@ -18,9 +20,11 @@ public class LockMusicControls extends View{
 	private static final boolean DBG = false;
 	
 	
-	// Listener for onDialTrigger() callbacks.
+	// Listener for onMusic*Listeners() callbacks.
     private OnMusicVisibleListener mOnMusicVisibleListener;
-		
+    private OnMusicTriggerListener mOnMusicTriggerListener; 
+    
+    
 	// Albums stats
 	private static String mArtist = "";
 	private static String mTrack = "";
@@ -55,6 +59,11 @@ public class LockMusicControls extends View{
 	public static final int SEEK_PRESSED = 13;
 
     
+	 // positions of the left and right handle
+    private int mLeftHandleX;
+    private int mRightHandleX;
+
+	
     
     /**
      * Whether the user has triggered something (e.g dragging the left handle all the way over to
@@ -63,19 +72,32 @@ public class LockMusicControls extends View{
     private boolean mTriggered = false;
 
 
-	
+    /**
+     * How far from the edge of the screen the user must drag to trigger the event.
+     */
+    private static final int EDGE_TRIGGER_DIP = 100;
+    
+    
 	
 	public LockMusicControls(Context context){
 	     this(context, null);
-	     
-	     
-	
-		
-		
 	}
 	
+	
+	/**
+     * Constructor used when this widget is created from a layout file.
+     */
 	public LockMusicControls(Context context, AttributeSet attrs)  {
 		 super(context,attrs);
+		 
+		 // Set the widget layout structure
+		 
+		 TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MusicControls);
+	     mOrientation = a.getInt(R.styleable.MusicControls_orientation, HORIZONTAL);
+	     a.recycle();
+		 
+		 
+		 
 	}
 	
 	  @Override
@@ -103,28 +125,28 @@ public class LockMusicControls extends View{
 	 // 
 	 private BroadcastReceiver mMusicReceiver = new BroadcastReceiver() {
 
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			// TODO Auto-generated method stub
-			         String action = intent.getAction();
-	            mArtist = intent.getStringExtra("artist");
-	            mTrack = intent.getStringExtra("track");
-	            mPlaying = intent.getBooleanExtra("playing", false);
-	            mSongId = intent.getLongExtra("songid", 0);
-	            mAlbumId = intent.getLongExtra("albumid", 0);
-	            
-	            // Update the lock screen music controls here
-	            intent = new Intent("internal.policy.impl.updateSongStatus");
-	            
-	            // Send the broadcast signaling that the lockscreen should update the controls
-	            context.sendBroadcast(intent);
-		}
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				// TODO Auto-generated method stub
+				         String action = intent.getAction();
+		            mArtist = intent.getStringExtra("artist");
+		            mTrack = intent.getStringExtra("track");
+		            mPlaying = intent.getBooleanExtra("playing", false);
+		            mSongId = intent.getLongExtra("songid", 0);
+		            mAlbumId = intent.getLongExtra("albumid", 0);
+		            
+		            // Update the lock screen music controls here
+		            intent = new Intent("internal.policy.impl.updateSongStatus");
+		            
+		            // Send the broadcast signaling that the lockscreen should update the controls
+		            context.sendBroadcast(intent);
+			}
 
 	        
 	    };
 	
 
-	    public static String NowPlayingArtist() {
+	    private static String NowPlayingArtist() {
 	        if (mArtist != null && mPlaying) {
 	            return (mArtist);
 	        } else {
@@ -132,7 +154,7 @@ public class LockMusicControls extends View{
 	        }
 	    }
 
-	    public static String NowPlayingAlbum() {
+	    private static String NowPlayingAlbum() {
 	        if (mArtist != null && mPlaying) {
 	            return (mTrack);
 	        } else {
@@ -140,11 +162,11 @@ public class LockMusicControls extends View{
 	        }
 	    }
 
-	    public static long SongId() {
+	    private static long SongId() {
 	        return mSongId;
 	    }
 
-	    public static long AlbumId() {
+	    private static long AlbumId() {
 	        return mAlbumId;
 	    }
 	
@@ -161,7 +183,7 @@ public class LockMusicControls extends View{
 	        }
 	    }
 	    
-	    public interface OnMusicControlsListener{
+	    public interface OnMusicTriggerListener{
 	    	
 	    	/**
 	    	 * The music controls play button was pressed 
