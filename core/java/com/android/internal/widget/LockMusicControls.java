@@ -5,11 +5,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import com.android.internal.R;
 
 public class LockMusicControls extends View{
 
@@ -24,6 +24,14 @@ public class LockMusicControls extends View{
     private OnMusicVisibleListener mOnMusicVisibleListener;
     private OnMusicTriggerListener mOnMusicTriggerListener; 
     
+    
+    // UI elements
+    private Bitmap mBackground;
+    private Bitmap mAlbumArt;
+    private Bitmap mPlayButton;
+    private Bitmap mPauseButton;
+    private Bitmap mSkipButton;
+    private Bitmap mSeekButton;
     
 	// Albums stats
 	private static String mArtist = "";
@@ -95,6 +103,19 @@ public class LockMusicControls extends View{
 		 TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MusicControls);
 	     mOrientation = a.getInt(R.styleable.MusicControls_orientation, HORIZONTAL);
 	     a.recycle();
+	     
+	     Resources r = getResources();
+	        mDensity = r.getDisplayMetrics().density;
+	        if (DBG) log("- Density: " + mDensity);
+	     
+	     // Set the backgrounf of the music widget
+	     // This should not be completely transparent
+	     //mBackground = getBitMapFor();
+	     mAlbumArt = getBitMapFor(R.drawable.lock_ic_default_artwork);
+	     mPlayButton = getBitMapFor(R.drawable.lock_ic_media_play);
+	     mPauseButton = getBitMapFor(R.drawable.lock_ic_media_pause);
+	     mSkipButton = getBitMapFor(R.drawable.lock_ic_media_next);
+	     mSeekButton = getBitMapFor(R.drawable.lock_ic_media_previous);
 		 
 		 
 		 
