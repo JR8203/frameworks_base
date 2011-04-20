@@ -151,7 +151,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="80dip"
         />
-    <com.android.internal.widget.LockMusicControls
+    <com.android.internal.widget.MusicControls
 		android:id="@+id/music_controls"
         android:orientation="horizontal"
         android:layout_width="match_parent"

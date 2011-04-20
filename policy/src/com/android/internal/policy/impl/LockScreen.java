@@ -880,7 +880,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         
     }
 
-	public void setMusicControl(View v, int control) {
+	public void setPokeWakeLock(View v, int control) {
 		
 		
 		mCallback.pokeWakelock();

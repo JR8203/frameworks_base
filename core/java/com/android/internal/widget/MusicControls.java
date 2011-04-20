@@ -1,9 +1,17 @@
 package com.android.internal.widget;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -11,6 +19,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
+import com.android.internal.R;
 
 public class MusicControls extends LinearLayout{
 
@@ -37,7 +47,8 @@ public class MusicControls extends LinearLayout{
     private ImageView mSkipButton;
     private ImageView mSeekButton;
     
-
+    private static final Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+    
 	// Albums stats
 	private static String mArtist = "";
 	private static String mTrack = "";
@@ -72,10 +83,32 @@ public class MusicControls extends LinearLayout{
         mSeekButton = new ImageView(mContext);
        
         setListners();
+        updateVisibility();
         
         
     }
 	
+	private void updateVisibility() {
+		// TODO Auto-generated method stub
+
+			if (mWasMusicActive) {
+				//mHandle
+				
+      
+            }
+			else{
+
+                // Set album art
+                Uri uri = getArtworkUri(getContext(), SongId(),
+           AlbumId());
+                if (uri != null) {
+                    mAlbumArt.setImageURI(uri);
+                }
+				
+				
+			}
+	}
+
 	private void setListners() {
 		// TODO Auto-generated method stub
 		
@@ -135,6 +168,21 @@ public class MusicControls extends LinearLayout{
 	
 	}
 	
+	@Override
+    protected void onAttachedToWindow() {     
+	  if (DBG) log("Attching " + TAG + " to the window");
+	  
+	  	 mContext = this.getContext();
+		
+		 IntentFilter iF = new IntentFilter();
+		 iF.addAction("com.android.music.metachanged");
+		 iF.addAction("com.android.music.playstatechanged");
+		 
+		 // Register if the music play state has change
+		 mContext.registerReceiver(mMusicReceiver, iF);
+  }
+
+	
 	 // Broadcast receiver to determine if the music state has changed
 	 // 
 	 private BroadcastReceiver mMusicReceiver = new BroadcastReceiver() {
@@ -160,7 +208,7 @@ public class MusicControls extends LinearLayout{
 	    public interface onMusicControlsListener{
 	    	
 	    
-	    	void setMusicControl(View v, int control);
+	    	void setPokeWakeLock(View v, int control);
 	    
 	    
 	    }
@@ -191,7 +239,63 @@ public class MusicControls extends LinearLayout{
 	        return mAlbumId;
 	    }
 	    
-	    
+	    public static Uri getArtworkUri(Context context, long song_id, long album_id) {
+
+	        if (album_id < 0) {
+	            // This is something that is not in the database, so get the album art directly
+	            // from the file.
+	            if (song_id >= 0) {
+	                return getArtworkUriFromFile(context, song_id, -1);
+	            }
+	            return null;
+	        }
+
+	       ContentResolver res = context.getContentResolver();
+	        Uri uri = ContentUris.withAppendedId(sArtworkUri, album_id);
+	        if (uri != null) {
+	            InputStream in = null;
+	            try {
+	                in = res.openInputStream(uri);
+	                return uri;
+	            } catch (FileNotFoundException ex) {
+	                // The album art thumbnail does not actually exist. Maybe the user deleted it, or
+	                // maybe it never existed to begin with.
+	                return getArtworkUriFromFile(context, song_id, album_id);
+	            } finally {
+	                try {
+	                    if (in != null) {
+	                        in.close();
+	                    }
+	                } catch (IOException ex) {
+	                }
+	            }
+	        }
+	        return null;
+	    }
+	    private static Uri getArtworkUriFromFile(Context context, long songid, long albumid) {
+
+	        if (albumid < 0 && songid < 0) {
+	            return null;
+	        }
+
+	        try {
+	            if (albumid < 0) {
+	                Uri uri = Uri.parse("content://media/external/audio/media/" + songid + "/albumart");
+	                ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r");
+	                if (pfd != null) {
+	                    return uri;
+	               }
+	            } else {
+	                Uri uri = ContentUris.withAppendedId(sArtworkUri, albumid);
+	                ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r");
+	                if (pfd != null) {
+	                    return uri;
+	                }
+	            }
+	        } catch (FileNotFoundException ex) {
+	        }
+	        return null;
+	    }
 		   public void sendMediaButtonEvent(int code) {
 			   
 
