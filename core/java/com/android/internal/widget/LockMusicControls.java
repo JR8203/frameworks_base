@@ -9,12 +9,12 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import com.android.internal.R;
 
 public class LockMusicControls extends View {
 
@@ -22,7 +22,8 @@ public class LockMusicControls extends View {
     public static final int VERTICAL = 1;
 
 	private String TAG = "LockMusicControls";
-	private static final boolean DBG = false;
+	private static final boolean DBG = true;
+    private static final boolean VISUAL_DEBUG = true;
 	
 	
 	// Listener for onMusic*Listeners() callbacks.
@@ -55,7 +56,9 @@ public class LockMusicControls extends View {
 	 
 	// true if the music controls are hidden
 	private boolean mHidden = false;
-		
+	
+	 private Paint mPaint = new Paint();
+	
 	 /**
      * If the user is currently dragging something.
      */
@@ -314,7 +317,16 @@ public class LockMusicControls extends View {
 	    
 	    @Override
 	    protected void onDraw(Canvas canvas){
-	    	
+	    	  super.onDraw(canvas);
+
+	          final int width = getWidth();
+
+	          if (VISUAL_DEBUG) {
+	              // draw bounding box around widget
+	              mPaint.setColor(0xffff0000);
+	              mPaint.setStyle(Paint.Style.STROKE);
+	              canvas.drawRect(0, 0, width, getHeight(), mPaint);
+	          }
 	    	
 	    	
 	    }
