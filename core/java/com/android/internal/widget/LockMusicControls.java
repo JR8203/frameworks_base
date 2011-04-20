@@ -239,7 +239,7 @@ public class LockMusicControls extends View {
 	        }
 	    }
 	    
-	    
+	    public interface OnMusicTriggerListener{
 	    	
 	 	   /**
 	         * The music widget was triggered because the user grabbed the left handle,
@@ -281,7 +281,7 @@ public class LockMusicControls extends View {
 	         * @param grabbedState the new state: either {@link #PLAY_PRESSED},
 	         * {@link #PUASE_PRESSED}, {@link #SKIP_PRESSED}, or {@link #SEEK_PRESSED}.
 	         */
-	    	  void onMusicButtonStateChange(View v, int musicstate){}
+	    	  void onMusicButtonStateChange(View v, int musicstate);
 	    	   
 	    	  /**
 		         * Called when the dial is triggered.
@@ -290,7 +290,7 @@ public class LockMusicControls extends View {
 		         * @param whichHandle  Which "dial handle" the user grabbed,
 		         *        either {@link #LEFT_HANDLE}, {@link #RIGHT_HANDLE}.
 		         */
-		        void onMusicHandleTrigger(View v, int whichHandle){}
+		        void onMusicHandleTrigger(View v, int whichHandle);
 
 		        /**
 		         * Called when the "grabbed state" changes (i.e. when
@@ -300,12 +300,21 @@ public class LockMusicControls extends View {
 		         * @param grabbedState the new state: either {@link #NOTHING_GRABBED},
 		         * {@link #LEFT_HANDLE_GRABBED}, or {@link #RIGHT_HANDLE_GRABBED}.
 		         */
-		        void onMusicGrabbedStateChange(View v, int grabbedState){}
+		        void onMusicGrabbedStateChange(View v, int grabbedState);
+		    
+		        /**
+		         * Called when the music control is triggered.
+		         *
+		         * @param v The view that was triggered
+		         * @param whichControl  Which "music control" the user pressed,
+		         * either {@link #PLAY}, {@link #PUASE}, 
+		         * {@link #SKIP}, or {@link #SEEK}.
+		         */
+			   void onMusicControlTrigger(View v, int whichControl);
 	    	
-	    	
+	    }
 	    
-	    
-	    public void sendMediaButtonEvent(int code) {
+	   public void sendMediaButtonEvent(int code) {
 	        long eventtime = SystemClock.uptimeMillis();
 
 	        Intent downIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
@@ -320,33 +329,8 @@ public class LockMusicControls extends View {
 	    }
 	
 	    
-	    /**
-         * Called when the music control is triggered.
-         *
-         * @param v The view that was triggered
-         * @param whichControl  Which "music control" the user pressed,
-         * either {@link #PLAY}, {@link #PUASE}, 
-         * {@link #SKIP}, or {@link #SEEK}.
-         */
-	    public void onMusicControlTrigger(View v, int whichControl) {
-			
-			
-			if(whichControl == LockMusicControls.PLAY_PRESSED)
-				sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-			
-			if(whichControl == LockMusicControls.PAUSE_PRESSED);
-				sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-			
-			if(whichControl == LockMusicControls.SEEK_PRESSED)
-				sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
-			
-			if(whichControl == LockMusicControls.SKIP_PRESSED)
-				sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
-			
-			
-			
-			
-		}
+	 
+		
         
 
     	

@@ -51,7 +51,7 @@ import java.io.File;
  * past it, as applicable.
  */
 class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateMonitor.InfoCallback,
-        KeyguardUpdateMonitor.SimStateCallback, SlidingTab.OnTriggerListener, RotarySelector.OnDialTriggerListener
+        KeyguardUpdateMonitor.SimStateCallback, SlidingTab.OnTriggerListener, RotarySelector.OnDialTriggerListener, LockMusicControls.OnMusicTriggerListener
         {
 
     private static final boolean DBG = false;
@@ -879,5 +879,50 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         
     }
 
+	public void onMusicButtonStateChange(View v, int musicstate) {
+		// TODO Auto-generated method stub
+
+		
+		mCallback.pokeWakelock();
+		
+	}
+
+	   public void onMusicControlTrigger(View v, int whichControl) {
+			
+			
+			if(whichControl == LockMusicControls.PLAY_PRESSED)
+				mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			
+			if(whichControl == LockMusicControls.PAUSE_PRESSED);
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			
+			if(whichControl == LockMusicControls.SEEK_PRESSED)
+				mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+			
+			if(whichControl == LockMusicControls.SKIP_PRESSED)
+				mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
+			
+			
+			
+			
+		}
+
+	public void onMusicGrabbedStateChange(View v, int grabbedState) {
+		
+		 // Animate to the right
+		 if (grabbedState == LockMusicControls.OnMusicTriggerListener.RIGHT_HANDLE) {}
+		 
+		 // Animate to the left
+		 if (grabbedState == LockMusicControls.OnMusicTriggerListener.RIGHT_HANDLE) {}
+		
+		 mCallback.pokeWakelock();
+		 
+	}
 	
+
+	public void onMusicHandleTrigger(View v, int whichHandle) {
+		// TODO Auto-generated method stub
+		mCallback.pokeWakelock();
+		
+	}
 }
