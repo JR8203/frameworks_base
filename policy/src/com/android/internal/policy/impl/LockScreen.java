@@ -19,9 +19,9 @@ package com.android.internal.policy.impl;
 import com.android.internal.R;
 import com.android.internal.telephony.IccCard;
 import com.android.internal.widget.LockPatternUtils;
+import com.android.internal.widget.MusicControls;
 import com.android.internal.widget.SlidingTab;
 import com.android.internal.widget.RotarySelector;
-import com.android.internal.widget.LockMusicControls;
 
 import android.content.Context;
 import android.content.Intent;
@@ -51,7 +51,7 @@ import java.io.File;
  * past it, as applicable.
  */
 class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateMonitor.InfoCallback,
-        KeyguardUpdateMonitor.SimStateCallback, SlidingTab.OnTriggerListener, RotarySelector.OnDialTriggerListener, LockMusicControls.OnMusicTriggerListener
+        KeyguardUpdateMonitor.SimStateCallback, SlidingTab.OnTriggerListener, RotarySelector.OnDialTriggerListener, MusicControls.onMusicControlsListener
         {
 
     private static final boolean DBG = false;
@@ -64,7 +64,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
     private KeyguardUpdateMonitor mUpdateMonitor;
     private KeyguardScreenCallback mCallback;
 
-    private LockMusicControls mMusicControls = null;
+    private MusicControls mMusicControls = null;
     private SlidingTab mTabSelector = null;
     private RotarySelector mRotarySelector = null;
     private TextView mCarrier;
@@ -225,8 +225,8 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
 
         mScreenLocked = (TextView) findViewById(R.id.screenLocked);
         
-        mMusicControls = (LockMusicControls) findViewById(R.id.music_controls);
-        mMusicControls.setOnMusicTriggerListener(this);
+        mMusicControls = (MusicControls) findViewById(R.id.music_controls);
+        mMusicControls.setOnMusicControlsListner(this);
 
 
         if (mUseRotaryLockScreen) {
@@ -879,59 +879,17 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         mCallback.pokeWakelock();
         
     }
-    
-    public void onMusicButtonStateChange(View v, int musicstate){
-    	
-    	// Update widget
-    	
-    	// Poke the lock screen
+
+	public void setMusicControl(View v, int control) {
+		
+		
 		mCallback.pokeWakelock();
 		
-	}
-    
-    public void onMusicGrabbedStateChange(View v, int grabbedState){
+		// TODO Auto-generated method stub
 		
-    	// Update widget
-    	
-    	// Poke the lock screen
-		 mCallback.pokeWakelock();
-		 
 	}
     
-    public void onMusicHandleTrigger(View v, int whichHandle){
-
-    	// Update widget
-    	
-    	// Poke the lock screen
-    	mCallback.pokeWakelock();
-	
-	}
     
-    public void onMusicControlTrigger(View v, int whichControl){
-		   
-    	// Update widget
-    	
-    	// Poke the lock screen
-    	mCallback.pokeWakelock();
-		   
-		   
-    	// Send the event
-			if(whichControl == LockMusicControls.PLAY_PRESSED)
-				 mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-			
-			if(whichControl == LockMusicControls.PAUSE_PRESSED);
-			 mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-			
-			if(whichControl == LockMusicControls.SEEK_PRESSED)
-				 mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
-			
-			if(whichControl == LockMusicControls.SKIP_PRESSED)
-				 mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
-			
-			
-			
-			
-		}
 
 
 }
