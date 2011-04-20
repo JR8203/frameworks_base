@@ -4,14 +4,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import com.android.internal.R;
 
-public class LockMusicControls extends View{
+public class LockMusicControls extends View {
 
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -24,6 +29,7 @@ public class LockMusicControls extends View{
     private OnMusicVisibleListener mOnMusicVisibleListener;
     private OnMusicTriggerListener mOnMusicTriggerListener; 
     
+    private float mDensity;
     
     // UI elements
     private Bitmap mBackground;
@@ -72,6 +78,7 @@ public class LockMusicControls extends View{
     private int mRightHandleX;
 
 	
+    private Vibrator mVibrator;
     
     /**
      * Whether the user has triggered something (e.g dragging the left handle all the way over to
@@ -108,23 +115,32 @@ public class LockMusicControls extends View{
 	        mDensity = r.getDisplayMetrics().density;
 	        if (DBG) log("- Density: " + mDensity);
 	     
-	     // Set the backgrounf of the music widget
+	     // Set the background of the music widget
 	     // This should not be completely transparent
+	        
 	     //mBackground = getBitMapFor();
-	     mAlbumArt = getBitMapFor(R.drawable.lock_ic_default_artwork);
-	     mPlayButton = getBitMapFor(R.drawable.lock_ic_media_play);
-	     mPauseButton = getBitMapFor(R.drawable.lock_ic_media_pause);
-	     mSkipButton = getBitMapFor(R.drawable.lock_ic_media_next);
-	     mSeekButton = getBitMapFor(R.drawable.lock_ic_media_previous);
+	     mAlbumArt = this.getBitmapFor(R.drawable.lock_ic_default_artwork);
+	     mPlayButton = this.getBitmapFor(R.drawable.lock_ic_media_play);
+	     mPauseButton = this.getBitmapFor(R.drawable.lock_ic_media_pause);
+	     mSkipButton = this.getBitmapFor(R.drawable.lock_ic_media_next);
+	     mSeekButton = this.getBitmapFor(R.drawable.lock_ic_media_previous);
 		 
 		 
 		 
 	}
 	
+    private Bitmap getBitmapFor(int resId) {
+        return BitmapFactory.decodeResource(getContext().getResources(), resId);
+    }
+    
+	
+    private boolean isHoriz() {
+        return mOrientation == HORIZONTAL;
+    }
 	  @Override
 	    protected void onFinishInflate() {
 	        super.onFinishInflate();
-	        // Set the deafault inflation space
+	        // Set the default inflation space
 	   
 	    }
 
@@ -163,7 +179,6 @@ public class LockMusicControls extends View{
 		            context.sendBroadcast(intent);
 			}
 
-	        
 	    };
 	
 
@@ -191,6 +206,18 @@ public class LockMusicControls extends View{
 	        return mAlbumId;
 	    }
 	
+	    /**
+	     * Sets the current button pressed state, and dispatches a pressed button state change
+	     * event to our listener.
+	     */
+	    private void setMusicButtonStateChanged(int musicstate){
+	    	
+	    	if (mOnMusicVisibleListener != null) {
+	    		mOnMusicTriggerListener.onMusicButtonStateChange(this, musicstate);
+	    	}
+	    	
+	    }
+	    
 	    /**
 	     * Sets the current grabbed state, and dispatches a grabbed state change
 	     * event to our listener.
@@ -285,6 +312,12 @@ public class LockMusicControls extends View{
 	    
 	    }
 	    
+	    @Override
+	    protected void onDraw(Canvas canvas){
+	    	
+	    	
+	    	
+	    }
 	    /**
 	     * Handle touch screen events.
 	     *
@@ -297,12 +330,25 @@ public class LockMusicControls extends View{
 	    	 final int action = event.getAction();
 	         switch (action) {
 	         	case MotionEvent.ACTION_DOWN:
+	         		if (DBG) log("touch-down");
+	         		  mTriggered = false;
+	                  if (mGrabbedState != NOTHING_GRABBED) {
+	                      reset();
+	                      invalidate();
+	                  }
 	                break;
 	            case MotionEvent.ACTION_MOVE:
+	                if (DBG) log("touch-move");
+	            	invalidate();
 	                break;
 	            case MotionEvent.ACTION_UP:
+	                if (DBG) log("touch-up");
+	            	invalidate();
 	                break;
 	            case MotionEvent.ACTION_CANCEL:
+	            	 if (DBG) log("touch-cancel");
+	                 reset();
+	                 invalidate();
 	            	break;
 	         }
 	         return true;
@@ -310,8 +356,24 @@ public class LockMusicControls extends View{
 	    
 	    }
 	    		
-	    	
 	    
+	    /**
+	     * Triggers haptic feedback.
+	     */
+	    private synchronized void vibrate(long duration) {
+	        if (mVibrator == null) {
+	            mVibrator = (android.os.Vibrator)
+	                    getContext().getSystemService(Context.VIBRATOR_SERVICE);
+	        }
+	        mVibrator.vibrate(duration);
+	    }
+	    	
+	    private void reset() {
+	    	
+	        //mAnimating = false;
+	        setGrabbedState(NOTHING_GRABBED);
+	        mTriggered = false;
+	    }
 	    
 
 // Debugging / testing code
