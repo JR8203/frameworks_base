@@ -136,7 +136,7 @@ public class LockMusicControls extends View {
 	     // This should not be completely transparent
 	     // And should be a .9 to stretch
 	        
-	     mBackground = getBitMapFor(R.drawable.lock_ic_media_bg);
+	     mBackground = this.getBitmapFor(R.drawable.lock_ic_media_bg);
 	     mAlbumArt = this.getBitmapFor(R.drawable.lock_ic_default_artwork);
 	     mPlayButton = this.getBitmapFor(R.drawable.lock_ic_media_play);
 	     mPauseButton = this.getBitmapFor(R.drawable.lock_ic_media_pause);
