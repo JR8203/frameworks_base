@@ -152,7 +152,7 @@
         android:layout_marginBottom="80dip"
         />
     <com.android.internal.widget.LockMusicControls
-	android:id="@+id/music_widget"
+	android:id="@+id/music_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
