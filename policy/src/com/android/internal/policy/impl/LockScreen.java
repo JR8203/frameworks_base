@@ -226,7 +226,6 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         mScreenLocked = (TextView) findViewById(R.id.screenLocked);
         
         mMusicControls = (LockMusicControls) findViewById(R.id.music_controls);
-        mMusicControls.setOnMusicTriggerListener(this);
 
 
         if (mUseRotaryLockScreen) {
@@ -879,53 +878,59 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         mCallback.pokeWakelock();
         
     }
-
-	public void onMusicButtonStateChange(View v, int musicstate) {
-		// TODO Auto-generated method stub
-
-		
+    
+    public void onMusicButtonStateChange(View v, int musicstate){
+    	
+    	// Update widget
+    	
+    	// Poke the lock screen
 		mCallback.pokeWakelock();
 		
 	}
+    
+    public void onMusicGrabbedStateChange(View v, int grabbedState){
+		
+    	// Update widget
+    	
+    	// Poke the lock screen
+		 mCallback.pokeWakelock();
+		 
+	}
+    
+    public void onMusicHandleTrigger(View v, int whichHandle){
 
-	   public void onMusicControlTrigger(View v, int whichControl) {
-			
-		   mCallback.pokeWakelock();
+    	// Update widget
+    	
+    	// Poke the lock screen
+    	mCallback.pokeWakelock();
+	
+	}
+    
+    public void onMusicControlTrigger(View v, int whichControl){
+		   
+    	// Update widget
+    	
+    	// Poke the lock screen
+    	mCallback.pokeWakelock();
 		   
 		   
+    	// Send the event
 			if(whichControl == LockMusicControls.PLAY_PRESSED)
-				mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+				 mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
 			
 			if(whichControl == LockMusicControls.PAUSE_PRESSED);
-			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			 mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
 			
 			if(whichControl == LockMusicControls.SEEK_PRESSED)
-				mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+				 mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
 			
 			if(whichControl == LockMusicControls.SKIP_PRESSED)
-				mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
+				 mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
 			
 			
 			
 			
 		}
 
-	public void onMusicGrabbedStateChange(View v, int grabbedState) {
-		
-		 // Animate to the right
-		 if (grabbedState == LockMusicControls.OnMusicTriggerListener.RIGHT_HANDLE) {}
-		 
-		 // Animate to the left
-		 if (grabbedState == LockMusicControls.OnMusicTriggerListener.RIGHT_HANDLE) {}
-		
-		 mCallback.pokeWakelock();
-		 
-	}
-	
 
-	public void onMusicHandleTrigger(View v, int whichHandle) {
-		// TODO Auto-generated method stub
-		mCallback.pokeWakelock();
-		
-	}
 }

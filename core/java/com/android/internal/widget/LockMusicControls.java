@@ -18,11 +18,13 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.MeasureSpec;
 
 import com.android.internal.R;
 
 public class LockMusicControls extends View {
+	
+	
+	
 
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -58,7 +60,6 @@ public class LockMusicControls extends View {
 	private static long mAlbumId = 0;
 	
 	private static Context mContext;
-	  
 	/**
      * Either {@link #HORIZONTAL} or {@link #VERTICAL}.
      */	
@@ -136,7 +137,7 @@ public class LockMusicControls extends View {
 	     // This should not be completely transparent
 	     // And should be a .9 to stretch
 	        
-	     mBackground = this.getBitmapFor(R.drawable.lock_ic_media_bg);
+	     mBackground =  Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.RGB_565);
 	     mAlbumArt = this.getBitmapFor(R.drawable.lock_ic_default_artwork);
 	     mPlayButton = this.getBitmapFor(R.drawable.lock_ic_media_play);
 	     mPauseButton = this.getBitmapFor(R.drawable.lock_ic_media_pause);
@@ -183,7 +184,6 @@ public class LockMusicControls extends View {
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				// TODO Auto-generated method stub
 				         String action = intent.getAction();
 		            mArtist = intent.getStringExtra("artist");
 		            mTrack = intent.getStringExtra("track");
@@ -224,33 +224,10 @@ public class LockMusicControls extends View {
 	    private static long AlbumId() {
 	        return mAlbumId;
 	    }
-	
-	    /**
-	     * Sets the current button pressed state, and dispatches a pressed button state change
-	     * event to our listener.
-	     */
-	    private void setMusicButtonStateChanged(int musicstate){
-	    	
-	    	if (mOnMusicTriggerListener != null) {
-	    		mOnMusicTriggerListener.onMusicButtonStateChange(this, musicstate);
-	    	}
-	    	
-	    }
 	    
-	    /**
-	     * Sets the current grabbed state, and dispatches a grabbed state change
-	     * event to our listener.
-	     */
-	    private void setGrabbedState(int newState) {
-	        if (newState != mGrabbedState) {
-	            mGrabbedState = newState;
-	            if (mOnMusicTriggerListener != null) {
-	            	mOnMusicTriggerListener.onMusicGrabbedStateChange(this, mGrabbedState);
-	            }
-	        }
-	    }
 	    
 	    public interface OnMusicTriggerListener{
+
 	    	
 	 	   /**
 	         * The music widget was triggered because the user grabbed the left handle,
@@ -292,18 +269,9 @@ public class LockMusicControls extends View {
 	         * @param grabbedState the new state: either {@link #PLAY_PRESSED},
 	         * {@link #PUASE_PRESSED}, {@link #SKIP_PRESSED}, or {@link #SEEK_PRESSED}.
 	         */
-	    	  void onMusicButtonStateChange(View v, int musicstate);
-	    	   
+	    	public void onMusicButtonStateChange(View v, int musicstate);
+	    	
 	    	  /**
-		         * Called when the dial is triggered.
-		         *
-		         * @param v The view that was triggered
-		         * @param whichHandle  Which "dial handle" the user grabbed,
-		         *        either {@link #LEFT_HANDLE}, {@link #RIGHT_HANDLE}.
-		         */
-		        void onMusicHandleTrigger(View v, int whichHandle);
-
-		        /**
 		         * Called when the "grabbed state" changes (i.e. when
 		         * the user either grabs or releases one of the handles.)
 		         *
@@ -311,7 +279,17 @@ public class LockMusicControls extends View {
 		         * @param grabbedState the new state: either {@link #NOTHING_GRABBED},
 		         * {@link #LEFT_HANDLE_GRABBED}, or {@link #RIGHT_HANDLE_GRABBED}.
 		         */
-		        void onMusicGrabbedStateChange(View v, int grabbedState);
+	    	  public void onMusicGrabbedStateChange(View v, int grabbedState);
+		        
+	    	  /**
+		         * Called when the Music Handle is triggered.
+		         *
+		         * @param v The view that was triggered
+		         * @param whichHandle  Which "dial handle" the user grabbed,
+		         *        either {@link #LEFT_HANDLE}, {@link #RIGHT_HANDLE}.
+		         */
+		        public void onMusicHandleTrigger(View v, int whichHandle);
+		    
 		    
 		        /**
 		         * Called when the music control is triggered.
@@ -321,9 +299,10 @@ public class LockMusicControls extends View {
 		         * either {@link #PLAY}, {@link #PUASE}, 
 		         * {@link #SKIP}, or {@link #SEEK}.
 		         */
-			   void onMusicControlTrigger(View v, int whichControl);
+			   public void onMusicControlTrigger(View v, int whichControl);
+		}
 	    	
-	    }
+	    
 	    
 	   public void sendMediaButtonEvent(int code) {
 	        long eventtime = SystemClock.uptimeMillis();
@@ -369,12 +348,12 @@ public class LockMusicControls extends View {
 	          if (VISUAL_DEBUG) {
 	              // draw bounding box around widget
 	              mPaint.setColor(0xffff0000);
-	              mPaint.setStyle(Paint.Style.STROKE);
+	              mPaint.setStyle(Paint.Style.FILL);
 	              canvas.drawRect(0, 0, width, getHeight(), mPaint);
 	          }
 	          
-	          // Background: this should be a .9 to stretch
-	          //canvas.drawBitmap(mBackground, mBgMatrix, mPaint);
+	          // Background: 
+	          canvas.drawBitmap(mBackground, mBgMatrix, mPaint);
 	          
 	          // Draw music album
 	          
@@ -448,7 +427,7 @@ public class LockMusicControls extends View {
 	     * are "triggered" by sliding the view one way or the other
 	     * or pressing the music control buttons.
 	     *
-	     * @param l the OnDialTriggerListener to attach to this view
+	     * @param l the OnMusicTriggerListener to attach to this view
 	     */
 	    public void setOnMusicTriggerListener(OnMusicTriggerListener l) {
 	    	mOnMusicTriggerListener = l;
@@ -466,6 +445,54 @@ public class LockMusicControls extends View {
 	        	else	            
 	        		mOnMusicTriggerListener.onMusicHandleTrigger(this, whichHandle);
 	            
+	        }
+	    }
+	    /**
+	     * Sets the current button pressed state, and dispatches a media state change
+	     * event to our listener.
+	     */
+	    private void setMusicControlTrigger(int musiccontrol){
+	    	
+	    	if (mOnMusicTriggerListener != null) {
+	    		mOnMusicTriggerListener.onMusicControlTrigger(this, musiccontrol);
+	    	}
+	    	
+	    }
+	    
+	    /**
+	     * Sets the current handle pressed state, and dispatches a grabbed handle state change
+	     * event to our listener.
+	     */
+	    private void setMusicHandleTrigger(int whichHandle){
+	    	
+	    	if (mOnMusicTriggerListener != null) {
+	    		mOnMusicTriggerListener.onMusicHandleTrigger(this, whichHandle);
+	    	}
+	    	
+	    }
+	
+	    /**
+	     * Sets the current button pressed state, and dispatches a pressed button state change
+	     * event to our listener.
+	     */
+	    private void setMusicButtonStateChanged(int musicstate){
+	    	
+	    	if (mOnMusicTriggerListener != null) {
+	    		mOnMusicTriggerListener.onMusicButtonStateChange(this, musicstate);
+	    	}
+	    	
+	    }
+	    
+	    /**
+	     * Sets the current grabbed state, and dispatches a grabbed state change
+	     * event to our listener.
+	     */
+	    private void setGrabbedState(int newState) {
+	        if (newState != mGrabbedState) {
+	            mGrabbedState = newState;
+	            if (mOnMusicTriggerListener != null) {
+	            	mOnMusicTriggerListener.onMusicGrabbedStateChange(this, mGrabbedState);
+	            }
 	        }
 	    }
 	    

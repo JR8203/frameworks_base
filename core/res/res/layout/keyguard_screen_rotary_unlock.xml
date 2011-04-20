@@ -154,10 +154,8 @@
     <com.android.internal.widget.LockMusicControls
 		android:id="@+id/music_controls"
         android:orientation="horizontal"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="5dip"
 
 	/>
     <!-- emergency call button shown when sim is PUKd and tab_selector is
