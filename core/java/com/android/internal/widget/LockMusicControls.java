@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.MeasureSpec;
 
 import com.android.internal.R;
 
@@ -44,6 +45,10 @@ public class LockMusicControls extends View {
     private Bitmap mPauseButton;
     private Bitmap mSkipButton;
     private Bitmap mSeekButton;
+    
+
+    private int mBackgroundWidth;
+    private int mBackgroundHeight;
     
 	// Albums stats
 	private static String mArtist = "";
@@ -85,6 +90,10 @@ public class LockMusicControls extends View {
     private int mLeftHandleX;
     private int mRightHandleX;
 
+    
+    
+    
+    
 	
     private Vibrator mVibrator;
     
@@ -125,15 +134,17 @@ public class LockMusicControls extends View {
 	     
 	     // Set the background of the music widget
 	     // This should not be completely transparent
+	     // And should be a .9 to stretch
 	        
-	     //mBackground = getBitMapFor();
+	     mBackground = getBitMapFor(R.drawable.lock_ic_media_bg);
 	     mAlbumArt = this.getBitmapFor(R.drawable.lock_ic_default_artwork);
 	     mPlayButton = this.getBitmapFor(R.drawable.lock_ic_media_play);
 	     mPauseButton = this.getBitmapFor(R.drawable.lock_ic_media_pause);
 	     mSkipButton = this.getBitmapFor(R.drawable.lock_ic_media_next);
 	     mSeekButton = this.getBitmapFor(R.drawable.lock_ic_media_previous);
 		 
-		 
+	     mBackgroundWidth = mBackground.getWidth();
+	        mBackgroundHeight = mBackground.getHeight();
 		 
 	}
 	
@@ -331,8 +342,21 @@ public class LockMusicControls extends View {
 	    
 	 
 		
-        
+        @Override 
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        	   
+        	final int length = isHoriz() ?
+                    MeasureSpec.getSize(widthMeasureSpec) :
+                    MeasureSpec.getSize(heightMeasureSpec);
+                    
+        	final int height = mBackgroundHeight;
 
+               if (isHoriz()) {
+                   setMeasuredDimension(length, height);
+               } else {
+                   setMeasuredDimension(height, length);
+               }
+           }
     	
 	 
 	    
@@ -349,8 +373,15 @@ public class LockMusicControls extends View {
 	              canvas.drawRect(0, 0, width, getHeight(), mPaint);
 	          }
 	          
-	          // Background:
-	          canvas.drawBitmap(mBackground, mBgMatrix, mPaint);
+	          // Background: this should be a .9 to stretch
+	          //canvas.drawBitmap(mBackground, mBgMatrix, mPaint);
+	          
+	          // Draw music album
+	          
+	          // Draw music buttons
+	          
+	          
+	          
 	    	
 	    	
 	    }
@@ -393,10 +424,12 @@ public class LockMusicControls extends View {
 	                break;
 	            case MotionEvent.ACTION_MOVE:
 	                if (DBG) log("touch-move");
+	                // This is where the slide animation to the left or right would occur
 	            	invalidate();
 	                break;
 	            case MotionEvent.ACTION_UP:
 	                if (DBG) log("touch-up");
+	                // This is where the animation to "snap back" the left or right would occur
 	            	invalidate();
 	                break;
 	            case MotionEvent.ACTION_CANCEL:

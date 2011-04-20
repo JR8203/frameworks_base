@@ -226,6 +226,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         mScreenLocked = (TextView) findViewById(R.id.screenLocked);
         
         mMusicControls = (LockMusicControls) findViewById(R.id.music_controls);
+        mMusicControls.setOnMusicTriggerListener(this);
 
 
         if (mUseRotaryLockScreen) {
@@ -889,7 +890,9 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
 
 	   public void onMusicControlTrigger(View v, int whichControl) {
 			
-			
+		   mCallback.pokeWakelock();
+		   
+		   
 			if(whichControl == LockMusicControls.PLAY_PRESSED)
 				mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
 			
