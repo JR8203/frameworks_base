@@ -226,6 +226,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         mScreenLocked = (TextView) findViewById(R.id.screenLocked);
         
         mMusicControls = (LockMusicControls) findViewById(R.id.music_controls);
+        mMusicControls.setOnMusicTriggerListener(this);
 
 
         if (mUseRotaryLockScreen) {

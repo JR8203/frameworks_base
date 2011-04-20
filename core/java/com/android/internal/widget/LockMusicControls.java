@@ -137,7 +137,7 @@ public class LockMusicControls extends View {
 	     // This should not be completely transparent
 	     // And should be a .9 to stretch
 	        
-	     mBackground =  Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.RGB_565);
+	     mBackground =  Bitmap.createBitmap(100, 20, Bitmap.Config.RGB_565);
 	     mAlbumArt = this.getBitmapFor(R.drawable.lock_ic_default_artwork);
 	     mPlayButton = this.getBitmapFor(R.drawable.lock_ic_media_play);
 	     mPauseButton = this.getBitmapFor(R.drawable.lock_ic_media_pause);
@@ -167,6 +167,7 @@ public class LockMusicControls extends View {
 	  
 	  @Override
 	    protected void onAttachedToWindow() {     
+		  if (DBG) log("Attching " + TAG + " to the window");
 		  
 		  	 mContext = this.getContext();
 			
@@ -305,6 +306,9 @@ public class LockMusicControls extends View {
 	    
 	    
 	   public void sendMediaButtonEvent(int code) {
+		   
+
+			  if (DBG) log("sending media button event");
 	        long eventtime = SystemClock.uptimeMillis();
 
 	        Intent downIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
@@ -319,10 +323,12 @@ public class LockMusicControls extends View {
 	    }
 	
 	    
-	 
+	 /*
 		
         @Override 
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        	   
+			  if (DBG) log("Measuring the demensions of the view");
         	   
         	final int length = isHoriz() ?
                     MeasureSpec.getSize(widthMeasureSpec) :
@@ -330,34 +336,47 @@ public class LockMusicControls extends View {
                     
         	final int height = mBackgroundHeight;
 
+
+			  if (DBG) log("The demensions of the view is width:" + width + " and height: " + height );
                if (isHoriz()) {
                    setMeasuredDimension(length, height);
                } else {
                    setMeasuredDimension(height, length);
                }
            }
-    	
+    	*/
 	 
 	    
 	    @Override
 	    protected void onDraw(Canvas canvas){
 	    	  super.onDraw(canvas);
+	    	  
+
+			  if (DBG) log("beginning to draw the view");
 
 	          final int width = getWidth();
+	          final int height = getHeight();
+	          if (DBG) log("The width of the view is " + width + " and the hieght of the veiw is " + height );
 
 	          if (VISUAL_DEBUG) {
 	              // draw bounding box around widget
+
+				  if (DBG) log("Debugging the widget visibly");
 	              mPaint.setColor(0xffff0000);
 	              mPaint.setStyle(Paint.Style.FILL);
-	              canvas.drawRect(0, 0, width, getHeight(), mPaint);
+	              canvas.drawRect(0, 0, width/2, height/2 , mPaint);
 	          }
 	          
 	          // Background: 
+
+			  if (DBG) log("Drawing the background");
 	          canvas.drawBitmap(mBackground, mBgMatrix, mPaint);
 	          
 	          // Draw music album
+	          //if (DBG) log("Drawing the music album");
 	          
 	          // Draw music buttons
+	          //if (DBG) log("Drawing the buttons");
 	          
 	          
 	          
@@ -369,7 +388,7 @@ public class LockMusicControls extends View {
 	     *
 	     * @param event The motion event.
 	     * @return True if the event was handled, false otherwise.
-	     */
+	    
 	    @Override
 	    public boolean onTouchEvent(MotionEvent event) {
 	    	
@@ -421,6 +440,7 @@ public class LockMusicControls extends View {
 	    
 	    
 	    }
+	     */
 	    		
 	    /**
 	     * Registers a callback to be invoked when the music controls
@@ -430,6 +450,7 @@ public class LockMusicControls extends View {
 	     * @param l the OnMusicTriggerListener to attach to this view
 	     */
 	    public void setOnMusicTriggerListener(OnMusicTriggerListener l) {
+	    	 if (DBG) log("Setting the listners");
 	    	mOnMusicTriggerListener = l;
 	    }
 	    
@@ -437,6 +458,8 @@ public class LockMusicControls extends View {
 	     * Dispatches a trigger event to our listener.
 	     */
 	    private void dispatchTriggerEvent(int whichHandle) {
+	    	
+	    	 if (DBG) log("Dispatching a trigered event");
 	        //vibrate(VIBRATE_LONG);
 	        if (mOnMusicTriggerListener != null) {
 	            
@@ -453,6 +476,8 @@ public class LockMusicControls extends View {
 	     */
 	    private void setMusicControlTrigger(int musiccontrol){
 	    	
+	    	 if (DBG) log("Music control triggered");
+	    	
 	    	if (mOnMusicTriggerListener != null) {
 	    		mOnMusicTriggerListener.onMusicControlTrigger(this, musiccontrol);
 	    	}
@@ -464,7 +489,7 @@ public class LockMusicControls extends View {
 	     * event to our listener.
 	     */
 	    private void setMusicHandleTrigger(int whichHandle){
-	    	
+	    	 if (DBG) log("Setting the music control handle triggered");
 	    	if (mOnMusicTriggerListener != null) {
 	    		mOnMusicTriggerListener.onMusicHandleTrigger(this, whichHandle);
 	    	}
@@ -476,6 +501,7 @@ public class LockMusicControls extends View {
 	     * event to our listener.
 	     */
 	    private void setMusicButtonStateChanged(int musicstate){
+	    	 if (DBG) log("The music button state has changed");
 	    	
 	    	if (mOnMusicTriggerListener != null) {
 	    		mOnMusicTriggerListener.onMusicButtonStateChange(this, musicstate);
@@ -488,6 +514,8 @@ public class LockMusicControls extends View {
 	     * event to our listener.
 	     */
 	    private void setGrabbedState(int newState) {
+
+	    	 if (DBG) log("Determining the grab state change");
 	        if (newState != mGrabbedState) {
 	            mGrabbedState = newState;
 	            if (mOnMusicTriggerListener != null) {
