@@ -11,9 +11,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.os.SystemClock;
 import android.os.Vibrator;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -237,7 +239,7 @@ public class LockMusicControls extends View {
 	        }
 	    }
 	    
-	    public interface OnMusicTriggerListener{
+	    
 	    	
 	 	   /**
 	         * The music widget was triggered because the user grabbed the left handle,
@@ -270,16 +272,6 @@ public class LockMusicControls extends View {
 	    	public static final int SEEK = 13;
 	    	
 	    	
-	    	/**
-	         * Called when the music control is triggered.
-	         *
-	         * @param v The view that was triggered
-	         * @param whichControl  Which "music control" the user pressed,
-	         * either {@link #PLAY}, {@link #PUASE}, 
-	         * {@link #SKIP}, or {@link #SEEK}.
-	         */
-	        void onMusicControlTrigger(View v, int whichControl);
-
 	    	
 	        /**
 	         * Called when one of the music button changes (i.e. when
@@ -289,7 +281,7 @@ public class LockMusicControls extends View {
 	         * @param grabbedState the new state: either {@link #PLAY_PRESSED},
 	         * {@link #PUASE_PRESSED}, {@link #SKIP_PRESSED}, or {@link #SEEK_PRESSED}.
 	         */
-	    	  void onMusicButtonStateChange(View v, int musicstate);
+	    	  void onMusicButtonStateChange(View v, int musicstate){}
 	    	   
 	    	  /**
 		         * Called when the dial is triggered.
@@ -298,7 +290,7 @@ public class LockMusicControls extends View {
 		         * @param whichHandle  Which "dial handle" the user grabbed,
 		         *        either {@link #LEFT_HANDLE}, {@link #RIGHT_HANDLE}.
 		         */
-		        void onMusicHandleTrigger(View v, int whichHandle);
+		        void onMusicHandleTrigger(View v, int whichHandle){}
 
 		        /**
 		         * Called when the "grabbed state" changes (i.e. when
@@ -308,12 +300,56 @@ public class LockMusicControls extends View {
 		         * @param grabbedState the new state: either {@link #NOTHING_GRABBED},
 		         * {@link #LEFT_HANDLE_GRABBED}, or {@link #RIGHT_HANDLE_GRABBED}.
 		         */
-		        void onMusicGrabbedStateChange(View v, int grabbedState);
-		    
+		        void onMusicGrabbedStateChange(View v, int grabbedState){}
 	    	
 	    	
-	    }
 	    
+	    
+	    public void sendMediaButtonEvent(int code) {
+	        long eventtime = SystemClock.uptimeMillis();
+
+	        Intent downIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
+	        KeyEvent downEvent = new KeyEvent(eventtime, eventtime, KeyEvent.ACTION_DOWN, code, 0);
+	        downIntent.putExtra(Intent.EXTRA_KEY_EVENT, downEvent);
+	        getContext().sendOrderedBroadcast(downIntent, null);
+
+	        Intent upIntent = new Intent(Intent.ACTION_MEDIA_BUTTON, null);
+	        KeyEvent upEvent = new KeyEvent(eventtime, eventtime, KeyEvent.ACTION_UP, code, 0);
+	        upIntent.putExtra(Intent.EXTRA_KEY_EVENT, upEvent);
+	        getContext().sendOrderedBroadcast(upIntent, null);
+	    }
+	
+	    
+	    /**
+         * Called when the music control is triggered.
+         *
+         * @param v The view that was triggered
+         * @param whichControl  Which "music control" the user pressed,
+         * either {@link #PLAY}, {@link #PUASE}, 
+         * {@link #SKIP}, or {@link #SEEK}.
+         */
+	    public void onMusicControlTrigger(View v, int whichControl) {
+			
+			
+			if(whichControl == LockMusicControls.PLAY_PRESSED)
+				sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			
+			if(whichControl == LockMusicControls.PAUSE_PRESSED);
+				sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			
+			if(whichControl == LockMusicControls.SEEK_PRESSED)
+				sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+			
+			if(whichControl == LockMusicControls.SKIP_PRESSED)
+				sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
+			
+			
+			
+			
+		}
+        
+
+    	
 	 
 	    
 	    @Override

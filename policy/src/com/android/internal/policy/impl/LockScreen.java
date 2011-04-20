@@ -24,6 +24,7 @@ import com.android.internal.widget.RotarySelector;
 import com.android.internal.widget.LockMusicControls;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.ColorStateList;
@@ -50,7 +51,7 @@ import java.io.File;
  * past it, as applicable.
  */
 class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateMonitor.InfoCallback,
-        KeyguardUpdateMonitor.SimStateCallback, SlidingTab.OnTriggerListener, RotarySelector.OnDialTriggerListener, LockMusicControls.OnMusicTriggerListener
+        KeyguardUpdateMonitor.SimStateCallback, SlidingTab.OnTriggerListener, RotarySelector.OnDialTriggerListener
         {
 
     private static final boolean DBG = false;
@@ -224,7 +225,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
 
         mScreenLocked = (TextView) findViewById(R.id.screenLocked);
         
-        mMusicControls = (LockMusicControls) findViewbyId(R.id.music_controls);
+        mMusicControls = (LockMusicControls) findViewById(R.id.music_controls);
 
 
         if (mUseRotaryLockScreen) {
@@ -878,41 +879,5 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         
     }
 
-	public void onMusicButtonStateChange(View v, int musicstate) {
-		// TODO Auto-generated method stub
-
-		
-		mCallback.pokeWakelock();
-		
-	}
-
-	public void onMusicControlTrigger(View v, int whichControl) {
-		// TODO Auto-generated method stub
-				
-		if(whichControl == LockMusicControls.PLAY_PRESSED);
-		if(whichControl == LockMusicControls.PAUSE_PRESSED);
-		if(whichControl == LockMusicControls.SEEK_PRESSED);
-		if(whichControl == LockMusicControls.SKIP_PRESSED);
-		
-		mCallback.pokeWakelock();
-		
-	}
-
-	public void onMusicGrabbedStateChange(View v, int grabbedState) {
-		
-		 // Animate to the right
-		 if (grabbedState == LockMusicControls.OnMusicTriggerListener.RIGHT_HANDLE) {}
-		 
-		 // Animate to the left
-		 if (grabbedState == LockMusicControls.OnMusicTriggerListener.RIGHT_HANDLE) {}
-		
-		 mCallback.pokeWakelock();
-		 
-	}
-
-	public void onMusicHandleTrigger(View v, int whichHandle) {
-		// TODO Auto-generated method stub
-		mCallback.pokeWakelock();
-		
-	}
+	
 }
