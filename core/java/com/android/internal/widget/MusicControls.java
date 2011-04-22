@@ -439,7 +439,7 @@ public class MusicControls extends View {
 			  
 	          // Draw music album
 	          if (IDBG) log("Drawing the music album");
-	          canvas.drawBitmap(mAlbumArt,  mAlbumArtX, (height-mAlbumArt.getHeight())+PADDING, mPaint);
+	          canvas.drawBitmap(mAlbumArt,  mAlbumArtX, (height-mAlbumArt.getHeight()), mPaint);
 	          
 	          
 
