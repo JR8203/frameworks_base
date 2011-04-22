@@ -51,7 +51,7 @@ import java.io.File;
  * past it, as applicable.
  */
 class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateMonitor.InfoCallback,
-        KeyguardUpdateMonitor.SimStateCallback, SlidingTab.OnTriggerListener, RotarySelector.OnDialTriggerListener, MusicControls.onMusicControlsListener
+        KeyguardUpdateMonitor.SimStateCallback, SlidingTab.OnTriggerListener, RotarySelector.OnDialTriggerListener, MusicControls.OnMusicTriggerListener
         {
 
     private static final boolean DBG = false;
@@ -226,7 +226,7 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         mScreenLocked = (TextView) findViewById(R.id.screenLocked);
         
         mMusicControls = (MusicControls) findViewById(R.id.music_controls);
-        mMusicControls.setOnMusicControlsListner(this);
+        mMusicControls.setOnMusicTriggerListener(this);
 
 
         if (mUseRotaryLockScreen) {
@@ -880,15 +880,95 @@ class LockScreen extends LinearLayout implements KeyguardScreen, KeyguardUpdateM
         
     }
 
-	public void setPokeWakeLock(View v, int control) {
+	
+    public void onMusicButtonStateChange(View v, int musicState) {
+		if (DBG) log("Music button state has changed" );
+
+		// TODO Auto-generated method stub
+		
+		if (DBG) log("Music button controls has been triggerd" );
+		switch(musicState){
+
+		case MusicControls.PLAY_PRESSED :			
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			if (DBG) log("Music button control number" + MusicControls.PLAY_PRESSED +" has been triggered" );
+			break;
+			
+			
+		case MusicControls.PAUSE_PRESSED :
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			if (DBG) log("Music button control number" + MusicControls.PAUSE_PRESSED +" has been triggered" );
+			break;
+			
+		case MusicControls.SEEK_PRESSED : 
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+			if (DBG) log("Music button control number" + MusicControls.SEEK_PRESSED +" has been triggered" );
+			break;
+			
+		case MusicControls.SKIP_PRESSED :
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
+			if (DBG) log("Music button control number" + MusicControls.SKIP_PRESSED +" has been triggered" );
+			break;
+		default :
+			break;
+			
+		}
+		
+	}
+
+	public void onMusicControlTrigger(View v, int whichControl) {
+
+		if (DBG) log("Music button controlse has been triggerd" );
+		switch(whichControl){
+
+		case MusicControls.PLAY_PRESSED :			
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			if (DBG) log("Music button control number" + MusicControls.PLAY_PRESSED +" has been triggered" );
+			break;
+			
+			
+		case MusicControls.PAUSE_PRESSED :
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+			if (DBG) log("Music button control number" + MusicControls.PAUSE_PRESSED +" has been triggered" );
+			break;
+			
+		case MusicControls.SEEK_PRESSED : 
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+			if (DBG) log("Music button control number" + MusicControls.SEEK_PRESSED +" has been triggered" );
+			break;
+			
+		case MusicControls.SKIP_PRESSED :
+			mMusicControls.sendMediaButtonEvent(KeyEvent.KEYCODE_MEDIA_NEXT);
+			if (DBG) log("Music button control number" + MusicControls.SKIP_PRESSED +" has been triggered" );
+			break;
+		default :
+			break;
+			
+		}
+		
+	}
+
+	public void onMusicGrabbedStateChange(View v, int grabbedState) {
+
+		if (DBG) log("Music handle state has changed" );
+		// TODO Auto-generated method stub
 		
 		
-		mCallback.pokeWakelock();
-		
+	}
+
+	
+	public void onMusicHandleTrigger(View v, int whichHandle) {
+
+		if (DBG) log("Music handle state has been triggered" );
 		// TODO Auto-generated method stub
 		
 	}
-    
+	private void log(String msg) {
+	    Log.d(TAG, msg);
+	}
+	
+	
+	
     
 
 

@@ -156,6 +156,8 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+         android:layout_alignParentBottom="true"
+         android:layout_marginBottom="0dip"
 
 	/>
     <!-- emergency call button shown when sim is PUKd and tab_selector is

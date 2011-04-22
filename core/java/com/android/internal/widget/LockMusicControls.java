@@ -251,7 +251,8 @@ public class LockMusicControls extends View {
 	    	 * The music controls pause button was pressed 
 	    	 */
 	    	public static final int PAUSE = 11;
-	    	/**
+	    	
+	    /**
 	    	 * The music controls play button was pressed 
 	    	 */
 	    	public static final int SKIP = 12;
