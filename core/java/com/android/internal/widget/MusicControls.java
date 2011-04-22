@@ -61,6 +61,15 @@ public class MusicControls extends View {
     private Bitmap mArtistName;
     private Bitmap mAlbumName;
     
+   
+    private int mAlbumArtX;
+    private int mPlayButtonX;
+    private int mPauseButtonX;
+    private int mSkipButtonX;
+    private int mSeekButtonX;
+    private int mArtistNameX;
+    private int mAlbumNameX;
+    
 
     private int mBackgroundWidth;
     private int mBackgroundHeight;
@@ -394,6 +403,12 @@ public class MusicControls extends View {
 	    protected void onDraw(Canvas canvas){
 	    	  super.onDraw(canvas);
 	    	  
+	    	  mAlbumArtX = mLeftHandle.getWidth()+PADDING;
+	    	  mPlayButtonX = mAlbumArt.getWidth() + SPACING + mSeekButton.getWidth();
+	    	  mPauseButtonX = mAlbumArt.getWidth() + SPACING + mSeekButton.getWidth();
+	    	  mSeekButtonX = mAlbumArt.getWidth() + SPACING;
+	    	  mSkipButtonX= mAlbumArt.getWidth() + SPACING + mSeekButton.getWidth()  + SPACING + mPlayButton.getWidth();
+	    	
 
 			  if (IDBG) log("beginning to draw the view");
 
@@ -424,18 +439,18 @@ public class MusicControls extends View {
 			  
 	          // Draw music album
 	          if (IDBG) log("Drawing the music album");
-	          canvas.drawBitmap(mAlbumArt,  mLeftHandle.getWidth()+PADDING, (height-mAlbumArt.getHeight())+PADDING, mPaint);
+	          canvas.drawBitmap(mAlbumArt,  mAlbumArtX, (height-mAlbumArt.getHeight())+PADDING, mPaint);
 	          
 	          
 
 	         if(!am.isMusicActive() && mWasMusicActive && mAreMusicControlsVisible) {
 	        	
-	        	 canvas.drawBitmap(mPauseButton,  OFFSETT+(width/2)+SPACING , (height-mPauseButton.getHeight()), mPaint);
+	        	 canvas.drawBitmap(mPauseButton,  mPauseButtonX , (height-mPauseButton.getHeight()), mPaint);
 	        	 mWasMusicActive = true;
 	         }
 	         else if(mAreMusicControlsVisible){
 	        	 
-	        	 canvas.drawBitmap(mPlayButton, OFFSETT+(width/2)+SPACING , (height-mPlayButton.getHeight()), mPaint); 
+	        	 canvas.drawBitmap(mPlayButton,  mPlayButtonX  , (height-mPlayButton.getHeight()), mPaint); 
 	        	 mWasMusicActive = false;
 	         }
 	          
@@ -444,9 +459,9 @@ public class MusicControls extends View {
 	          
 	         
 	          
-	          canvas.drawBitmap(mSkipButton, OFFSETT+(width/2)+mPauseButton.getWidth()+3*SPACING   , (height-mSkipButton.getHeight()), mPaint);
+	          canvas.drawBitmap(mSkipButton, mSkipButtonX , (height-mSkipButton.getHeight()), mPaint);
 	          
-	          canvas.drawBitmap(mSeekButton, OFFSETT+(width/2)-mPauseButton.getWidth()-SPACING , (height-mSeekButton.getHeight()), mPaint);
+	          canvas.drawBitmap(mSeekButton, mSeekButtonX, (height-mSeekButton.getHeight()), mPaint);
 	          
 	          
 	          
@@ -494,8 +509,9 @@ public class MusicControls extends View {
 	                  }
 
 		         	  // Determine if pause/play pressed	                  
-	                  if(((eventX > (OFFSETT+(getWidth()/2)+SPACING-(3*PADDING) ))
-	                		  && (eventX < (getWidth() + (3*PADDING) - 3*SPACING-(2*mSkipButton.getWidth())))) && (eventY > (getHeight()-mPlayButton.getHeight()))){
+	                  if((eventX > (mAlbumArt.getWidth() + SPACING + mSeekButton.getWidth() + SPACING - (2*PADDING) ))
+	                		  && (eventX < (mAlbumArt.getWidth() + SPACING + mSeekButton.getWidth() + SPACING + (2*PADDING) + mPlayButton.getWidth())) 
+	                				  && (eventY > (getHeight()-mPlayButton.getHeight()))){
 	                	  
 	                	  
 	                	  
@@ -524,9 +540,9 @@ public class MusicControls extends View {
 	                  }
 	                 
 	                  // Determine Seek pressed
-	                  if((eventX > ( mAlbumArt.getWidth() + 2*SPACING )) 
-	                		  && (eventX < ( getWidth() - (3*PADDING) - mSkipButton.getWidth()- 3 *SPACING  - mPlayButton.getWidth() - OFFSETT )) && 
-	                		  (eventY > (getHeight()-mPlayButton.getHeight()))){
+					if((eventX > ( mAlbumArt.getWidth() + 2*SPACING ))  
+							&& (eventX < ( mAlbumArt.getWidth() + (2*SPACING) + mSeekButton.getWidth() + mPlayButton.getWidth() )) 
+							&& eventY > (getHeight()-mPlayButton.getHeight() )) {
 	                	  
 
                 		  if (DBG) log("Seek button pressed");
