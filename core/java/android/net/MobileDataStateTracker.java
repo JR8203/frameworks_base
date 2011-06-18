@@ -274,11 +274,6 @@ public class MobileDataStateTracker extends NetworkStateTracker {
                                 setDetailedState(DetailedState.SUSPENDED, false, false, reason, extraInfo);
                                 break;
                             case CONNECTED:
-                                mInterfaceName = intent.getStringExtra(Phone.DATA_IFACE_NAME_KEY);
-                                if (mInterfaceName == null) {
-                                    Log.d(TAG, "CONNECTED event did not supply interface name.");
-                                }
-                                mDefaultGatewayAddr = intent.getByteArrayExtra(Phone.DATA_GATEWAY_KEY);
                                 setDetailedState(
                                         DetailedState.CONNECTED,
                                         mMobileInfo.get(IPVersion.IPV4).mState == DataState.CONNECTED,

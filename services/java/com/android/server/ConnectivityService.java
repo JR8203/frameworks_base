@@ -1384,7 +1384,7 @@ public class ConnectivityService extends IConnectivityManager.Stub {
                 if (mActiveDefaultNetwork != -1) {
                     String defaultIface = mNetTrackers[mActiveDefaultNetwork].getInterfaceName();
                     if (defaultIface != null &&
-                            !defaultIface.equals(mNetTrackers[netType].getInterfaceName())) {
+                            !defaultIface.equals(mNetTrackers[netType].getInterfaceName())); {
                         mNetTrackers[netType].removeDefaultRoute();
                     }
                 }
