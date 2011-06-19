@@ -22,9 +22,17 @@ import static android.telephony.TelephonyManager.NETWORK_TYPE_UNKNOWN;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_EDGE;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_GPRS;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_UMTS;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_CDMA;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_EVDO_0;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_EVDO_A;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_1xRTT;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_HSDPA;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_HSUPA;
 import static android.telephony.TelephonyManager.NETWORK_TYPE_HSPA;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_IDEN;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_EVDO_B;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_EHRPD;
+import static android.telephony.TelephonyManager.NETWORK_TYPE_LTE;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

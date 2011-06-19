@@ -341,12 +341,12 @@ public class ConnectivityManager
      */
     public boolean requestRouteToHost(int networkType, int hostAddress) {
         InetAddress inetAddress = NetworkUtils.intToInetAddress(hostAddress);
-
-        if (inetAddress == null) {
-            return false;
-        }
-
-        return requestRouteToHostAddress(networkType, inetAddress);
+	
+	if (inetAddress == null) {
+	    return false;
+ 	}
+	
+	return requestRouteToHostAddress(networkType, inetAddress);
     }
 
     /**
@@ -360,11 +360,11 @@ public class ConnectivityManager
      * @hide
      */
     public boolean requestRouteToHostAddress(int networkType, InetAddress hostAddress) {
-        String address = hostAddress.getHostAddress();
-        try {
-            return mService.requestRouteToHostAddress(networkType, address);
-        } catch (RemoteException e) {
-            return false;
+	String address = hostAddress.getHostAddress();
+	try {
+	    return mService.requestRouteToHostAddress(networkType, address);
+	} catch (RemoteException e) {
+	    return false;
         }
     }
 
