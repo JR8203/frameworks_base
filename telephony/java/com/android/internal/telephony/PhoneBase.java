@@ -279,6 +279,11 @@ public abstract class PhoneBase extends Handler implements Phone {
         }
     }
 
+    /* package */ void
+    notifySignalStrength() {
+	mNotifier.notifySignalStrength(this);
+    }
+
     // Inherited documentation suffices.
     public Context getContext() {
         return mContext;
