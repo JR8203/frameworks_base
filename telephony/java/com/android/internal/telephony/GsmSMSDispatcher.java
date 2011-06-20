@@ -23,11 +23,8 @@ import android.app.PendingIntent.CanceledException;
 import android.content.Intent;
 import android.os.AsyncResult;
 import android.os.Message;
-<<<<<<< HEAD
 import android.provider.Telephony.Sms;
-=======
 import android.os.SystemProperties;
->>>>>>> c276fb1... Enabling cell broadcast (SMS-CB) support in the platform.
 import android.provider.Telephony.Sms.Intents;
 import android.telephony.ServiceState;
 import android.telephony.SmsCbMessage;
