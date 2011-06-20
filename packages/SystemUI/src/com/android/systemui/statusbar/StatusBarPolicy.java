@@ -1110,7 +1110,7 @@ public class StatusBarPolicy {
 	updateCdmaRoamingIcon();
         // Display signal strength while in "emergency calls only" mode
         if ((mSignalStrength == null) || (mServiceState == null)
-		|| (!hadService() && !mServiceState.isEmergencyOnly())) {
+		|| (!hasService() && !mServiceState.isEmergencyOnly())) {
             //Slog.d(TAG, "updateSignalStrength: no service");
             if (Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.AIRPLANE_MODE_ON, 0) == 1) {
@@ -1305,7 +1305,7 @@ public class StatusBarPolicy {
             mDataIconList = sDataNetType_3g[mInetCondition];
             break;
 	case TelephonyManager.NETWORK_TYPE_LTE:
-	    mDataIconList = sDataNetTyle_lte[mInetCondition];
+	    mDataIconList = sDataNetType_lte[mInetCondition];
 	    break;
         default:
             mDataIconList = sDataNetType_g[mInetCondition];
